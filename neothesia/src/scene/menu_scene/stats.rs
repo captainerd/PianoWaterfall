@@ -17,6 +17,7 @@ pub struct SavedStats {
     pub date: DateTime<Utc>,
     pub notes_hit: usize,
     pub notes_missed: usize,
+    pub slow_hits: usize,
     pub wrong_notes: usize,
     pub correct_note_times: usize,
 }
@@ -175,7 +176,7 @@ impl super::MenuScene {
                                     (date_str, 170.0),
                                     (score.to_string(), 100.0),
                                     (stats.notes_hit.to_string(), 100.0),
-                                    (stats.notes_missed.to_string(), 100.0),
+                                   (stats.slow_hits.to_string(), 100.0),
                                     (stats.wrong_notes.to_string(), 110.0),
                                     (stats.correct_note_times.to_string(), 140.0),
                                 ];

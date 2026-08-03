@@ -165,7 +165,7 @@ impl PlayingScene {
         } else if is_file_active && !is_human_waiting {
             file_color
         } else {
-            None
+            continue;
         };
 
         let Some(color) = color else {
@@ -174,7 +174,7 @@ impl PlayingScene {
 
         // Check if this specific MIDI note had a NoteOn event this frame
         let retrigger = retriggered_notes.contains(&note_id);
-
+   
         glow.push(
             idx,
             *color,
@@ -256,13 +256,24 @@ fn update_midi_player(&mut self, ctx: &Context, delta: Duration) -> f32 {
             date: chrono::Utc::now(),
             notes_hit: play_along.notes_hit(),
             notes_missed: play_along.notes_missed(),
+              slow_hits: play_along.notes_missed(),
             wrong_notes: play_along.wrong_notes(),
             correct_note_times: play_along.notes_hit(),
         };
+        println!(
+    "hit={} early={} late={} wrong={} missed={}",
+    play_along.notes_hit(),
+    play_along.early_notes(),
+    play_along.late_notes(),
+    play_along.wrong_notes(),
+    play_along.notes_missed()
+);
 
         let current_song = self.player.song().clone();
         let song_name = crate::song::Song::get_clean_songname(current_song.file.name.clone());
         stats.save_for_song(&song_name);
+
+        
 
         ctx.proxy
             .send_event(NeothesiaEvent::Stats(Some(current_song)))
