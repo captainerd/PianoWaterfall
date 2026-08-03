@@ -135,7 +135,7 @@ impl PlayingScene {
         }
     }
     
-fn update_glow(&mut self, delta: Duration) {
+ fn update_glow(&mut self, delta: Duration, retriggered_notes: &std::collections::HashSet<u8>) {
     let Some(glow) = &mut self.glow else {
         return;
     };
@@ -147,39 +147,42 @@ fn update_glow(&mut self, delta: Duration) {
     let range_start = self.keyboard.range().start() as usize;
     let play_along = self.player.play_along();
 
-    for (key, state) in keys.iter().zip(states) {
+    for (idx, key) in keys.iter().enumerate() {
         let note_id = (key.id() + range_start) as u8;
 
-        let user_press = state.pressed_by_user();
-
-        // 1. MUST be physically pressed by the user (blocks auto-play idle notes)
-        if user_press.is_none() {
+        let Some(state) = states.get(idx) else {
             continue;
-        }
+        };
 
         let file_color = state.pressed_by_file();
+        let user_press = state.pressed_by_user();
+        let is_user_pressed = user_press.is_some();
+        let is_file_active = file_color.is_some();
         let is_human_waiting = play_along.is_note_required(note_id);
 
-        // 2. MUST be a valid song note (either actively sounding in file OR waiting in human mode).
-        // If neither is true, it's a wrong note press -> BLOCK IT!
-        if file_color.is_none() && !is_human_waiting {
-            continue;
-        }
-
-        // 3. Get track color (prefer file_color, fallback to user_press if waiting)
-        let color = file_color.or(user_press);
+        let color = if is_user_pressed {
+            file_color.or(user_press)
+        } else if is_file_active && !is_human_waiting {
+            file_color
+        } else {
+            None
+        };
 
         let Some(color) = color else {
             continue;
         };
 
+        // Check if this specific MIDI note had a NoteOn event this frame
+        let retrigger = retriggered_notes.contains(&note_id);
+
         glow.push(
-            key.id(),
+            idx,
             *color,
             key.x(),
             self.keyboard.pos().y,
             key.width(),
             delta,
+            retrigger,
         );
     }
 }
@@ -202,24 +205,35 @@ fn update_glow(&mut self, delta: Duration) {
     }
 
 #[profiling::function]
-    fn update_midi_player(&mut self, ctx: &Context, delta: Duration) -> f32 {
-        if self.top_bar.is_looper_active() && self.player.time() > self.top_bar.loop_end_timestamp()
-        {
-            self.player.set_time(self.top_bar.loop_start_timestamp());
-            self.keyboard.reset_notes();
-        }
-
-        if self.player.play_along().are_required_keys_pressed() {
-            let delta = (delta / 10) * (ctx.config.speed_multiplier() * 10.0) as u32;
-            let midi_events = self.player.update(delta);
-            self.keyboard.file_midi_events(&ctx.config, &midi_events);
-        }
-
- 
-        self.update_glow(delta);
-
-        self.player.time_without_lead_in() + ctx.config.animation_offset()
+fn update_midi_player(&mut self, ctx: &Context, delta: Duration) -> f32 {
+    if self.top_bar.is_looper_active() && self.player.time() > self.top_bar.loop_end_timestamp()
+    {
+        self.player.set_time(self.top_bar.loop_start_timestamp());
+        self.keyboard.reset_notes();
     }
+
+    let mut retriggered_notes = std::collections::HashSet::new();
+
+    if self.player.play_along().are_required_keys_pressed() {
+        let delta = (delta / 10) * (ctx.config.speed_multiplier() * 10.0) as u32;
+        let midi_events = self.player.update(delta);
+
+        // Collect all note IDs that received a new NoteOn strike in this frame
+        for event in &midi_events {
+            if let MidiMessage::NoteOn { key, vel } = &event.message {
+                if u8::from(*vel) > 0 {
+                    retriggered_notes.insert(u8::from(*key));
+                }
+            }
+        }
+
+        self.keyboard.file_midi_events(&ctx.config, &midi_events);
+    }
+
+    self.update_glow(delta, &retriggered_notes);
+
+    self.player.time_without_lead_in() + ctx.config.animation_offset()
+}
 
     #[profiling::function]
     fn resize(&mut self, ctx: &mut Context) {

@@ -16,22 +16,22 @@ impl GlowState {
         150.0 + self.time.sin() * 10.0
     }
 
-    fn update(&mut self, delta: Duration, is_pressed: bool) {
+    fn update(&mut self, delta: Duration, is_pressed: bool, retrigger: bool) {
         let dt = delta.as_secs_f32();
 
         if is_pressed {
-            if !self.was_pressed_last_frame {
-                // Brand new note press: reset timing
+            if !self.was_pressed_last_frame || retrigger {
+                // Brand new note press OR rapid re-strike: reset age timer
                 self.active_timer = 0.0;
                 self.time = 0.0;
             } else {
-                // Note held down: progress age continuously
+                // Note held down continuously: progress age
                 self.active_timer += dt;
             }
             self.time += dt * 5.0;
             self.was_pressed_last_frame = true;
         } else {
-            // Note released: reset state
+            // Note released: clear state
             self.was_pressed_last_frame = false;
             self.active_timer = 0.0;
         }
@@ -54,15 +54,15 @@ pub struct GlowRenderer {
 }
 
 impl GlowRenderer {
-  pub fn new(
-    gpu: &Gpu,
-    transform: &Uniform<TransformUniform>,
-    layout: &piano_layout::KeyboardLayout,
-) -> Self {
+    pub fn new(
+        gpu: &Gpu,
+        transform: &Uniform<TransformUniform>,
+        layout: &crate::piano_layout::KeyboardLayout,
+    ) -> Self {
         let pipeline = GlowPipeline::new(gpu, transform);
 
         let states: Vec<GlowState> = layout
-            .range
+            .keys
             .iter()
             .map(|_| GlowState {
                 time: 0.0,
@@ -79,9 +79,9 @@ impl GlowRenderer {
         // Process keys that were NOT pushed during update_glow() this frame
         for state in &mut self.states {
             if !state.pushed_this_frame {
-                state.update(Duration::ZERO, false);
+                state.update(Duration::ZERO, false, false);
             }
-            // Reset for the next frame iteration
+            // Reset flag for the next frame iteration
             state.pushed_this_frame = false;
         }
 
@@ -104,6 +104,7 @@ impl GlowRenderer {
         key_y: f32,
         key_w: f32,
         delta: Duration,
+        retrigger: bool,
     ) {
         if id >= self.states.len() {
             return;
@@ -111,9 +112,8 @@ impl GlowRenderer {
 
         let state = &mut self.states[id];
 
-        // Mark pushed so prepare() doesn't treat it as released
         state.pushed_this_frame = true;
-        state.update(delta, true);
+        state.update(delta, true, retrigger);
 
         let color = state.calc_color(color);
         let glow_w = state.size();
