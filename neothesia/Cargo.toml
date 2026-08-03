@@ -41,6 +41,10 @@ profiling.workspace = true
 puffin = { workspace = true, optional = true }
 puffin_http = { workspace = true, optional = true }
 piano-layout.workspace = true
+chrono = { version = "0.4.45", features = ["serde"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+directories = "6.0.0"
 
 [[bin]]
 name = "neothesia"

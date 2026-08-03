@@ -98,12 +98,14 @@ impl WaterfallRenderer {
                     0.1
                 };
 
-                self.notes_pipeline.instances().push(NoteInstance {
-                    position: [key.x(), note.start.as_secs_f32()],
-                    size: [key.width() - 1.0, h - 0.01], // h - 0.01 to make a little gap bettwen successive notes
-                    color: color.into_linear_rgb(),
-                    radius: key.width() * 0.2,
-                });
+             let rgb = color.into_linear_rgb();
+
+self.notes_pipeline.instances().push(NoteInstance {
+    position: [key.x(), note.start.as_secs_f32()],
+    size: [key.width() - 1.0, h - 0.01],
+    color: [rgb[0], rgb[1], rgb[2], 1.0],
+    state: 0,
+});
             } else {
                 longer_than_range = true;
             }
@@ -119,8 +121,9 @@ impl WaterfallRenderer {
         self.notes_pipeline.prepare(&self.device, &self.queue);
     }
 
-    pub fn update(&mut self, time: f32) {
+pub fn update(&mut self, time: f32, delta_secs: f32) {
         self.notes_pipeline.update_time(&self.queue, time);
+        self.notes_pipeline.update_real_time(&self.queue, delta_secs);
     }
 
     #[profiling::function]

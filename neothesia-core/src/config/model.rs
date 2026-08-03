@@ -215,11 +215,11 @@ fn default_animation_offset() -> f32 {
 }
 
 fn default_note_labels() -> bool {
-    false
+    true
 }
 
 fn default_audio_gain() -> f32 {
-    0.2
+    1.5
 }
 
 fn default_vertical_guidelines() -> bool {

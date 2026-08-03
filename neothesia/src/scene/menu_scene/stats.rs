@@ -1,6 +1,7 @@
-use chrono::{DateTime, Local};
-use neothesia_core::gamesave::SavedStats;
-use nuon::TextJustify;
+use chrono::{DateTime, Local, Utc};
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::PathBuf;
 
 use crate::{
     context::Context,
@@ -10,6 +11,61 @@ use crate::{
 
 pub const ROW_H: f32 = 44.0;
 pub const TABLE_W: f32 = 800.0;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SavedStats {
+    pub date: DateTime<Utc>,
+    pub notes_hit: usize,
+    pub notes_missed: usize,
+    pub wrong_notes: usize,
+    pub correct_note_times: usize,
+}
+
+impl SavedStats {
+   pub fn score_cooking(&self) -> usize {
+    let total_attempts = self.notes_hit + self.wrong_notes + self.notes_missed;
+    if total_attempts == 0 {
+        return 0;
+    }
+    let accuracy = (self.notes_hit as f32 / total_attempts as f32) * 100.0;
+    accuracy.round() as usize
+}
+
+    fn get_file_path(song_name: &str) -> Option<PathBuf> {
+        let proj_dirs = directories::ProjectDirs::from("", "", "neothesia")?;
+        let data_dir = proj_dirs.data_dir();
+        fs::create_dir_all(data_dir).ok()?;
+        let safe_name = song_name.chars().filter(|c| c.is_alphanumeric() || *c == ' ').collect::<String>();
+        Some(data_dir.join(format!("{}_stats.json", safe_name)))
+    }
+
+    pub fn load_for_song(song_name: String) -> Vec<SavedStats> {
+        let Some(path) = Self::get_file_path(&song_name) else {
+            return Vec::new();
+        };
+        
+        if let Ok(data) = fs::read_to_string(path) {
+            if let Ok(mut stats) = serde_json::from_str::<Vec<SavedStats>>(&data) {
+                stats.sort_by(|a, b| b.score_cooking().cmp(&a.score_cooking()));
+                return stats;
+            }
+        }
+        Vec::new()
+    }
+
+    pub fn save_for_song(&self, song_name: &str) {
+        let Some(path) = Self::get_file_path(song_name) else {
+            return;
+        };
+
+        let mut stats = Self::load_for_song(song_name.to_string());
+        stats.push(self.clone());
+        
+        if let Ok(data) = serde_json::to_string(&stats) {
+            let _ = fs::write(path, data);
+        }
+    }
+}
 
 impl super::MenuScene {
     pub fn stats_page_ui(&mut self, ctx: &mut Context, ui: &mut nuon::Ui) {
@@ -30,7 +86,7 @@ impl super::MenuScene {
                 .size(win_w, 40.0)
                 .font_size(22.0)
                 .bold(true)
-                .text_justify(TextJustify::Center)
+                .text_justify(nuon::TextJustify::Center)
                 .build(ui);
         });
 
@@ -62,7 +118,7 @@ impl super::MenuScene {
                         .font_size(14.0)
                         .bold(true)
                         .color([200, 200, 220])
-                        .text_justify(TextJustify::Center)
+                        .text_justify(nuon::TextJustify::Center)
                         .build(ui);
                 });
                 cur_x += width;
@@ -85,13 +141,13 @@ impl super::MenuScene {
                             .size(TABLE_W, 60.0)
                             .font_size(16.0)
                             .color([160, 160, 180])
-                            .text_justify(TextJustify::Center)
+                            .text_justify(nuon::TextJustify::Center)
                             .build(ui);
                     } else {
                         let row_gap = 6.0;
                         for (index, stats) in sorted_stats.iter().enumerate() {
-                            let score = SavedStats::score_cooking(stats);
-                            let datetime: DateTime<Local> = stats.date.into();
+                            let score = stats.score_cooking();
+                            let datetime: DateTime<Local> = stats.date.with_timezone(&Local);
                             let date_str = datetime.format("%d/%m/%y %H:%M").to_string();
 
                             let place_str = match index {
@@ -132,7 +188,7 @@ impl super::MenuScene {
                                             .size(width, ROW_H)
                                             .font_size(14.0)
                                             .color([230, 230, 245])
-                                            .text_justify(TextJustify::Center)
+                                            .text_justify(nuon::TextJustify::Center)
                                             .build(ui);
                                     });
                                     cur_x += width;

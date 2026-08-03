@@ -25,7 +25,7 @@ impl WaterfallPipeline {
         let shader = gpu
             .device
             .create_shader_module(wgpu::ShaderModuleDescriptor {
-                label: Some("RectanglePipeline::shader"),
+                label: Some("RectanglePipeline::fragment"),
                 source: wgpu::ShaderSource::Wgsl(std::borrow::Cow::Borrowed(include_str!(
                     "./shader.wgsl"
                 ))),
@@ -34,7 +34,7 @@ impl WaterfallPipeline {
         let time_uniform = Uniform::new(
             &gpu.device,
             TimeUniform::default(),
-            wgpu::ShaderStages::VERTEX,
+            wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
         );
 
         let render_pipeline_layout =
@@ -114,6 +114,11 @@ impl WaterfallPipeline {
         self.time_uniform.data.time = time;
         self.time_uniform.update(queue);
     }
+
+    pub fn update_real_time(&mut self, queue: &wgpu::Queue, delta_secs: f32) {
+        self.time_uniform.data.real_time += delta_secs;
+        self.time_uniform.update(queue);
+    }
 }
 
 #[repr(C)]
@@ -121,6 +126,7 @@ impl WaterfallPipeline {
 struct TimeUniform {
     time: f32,
     speed: f32,
+    real_time: f32,
 }
 
 impl Default for TimeUniform {
@@ -128,6 +134,7 @@ impl Default for TimeUniform {
         Self {
             time: 0.0,
             speed: 400.0,
+            real_time: 0.0,
         }
     }
 }

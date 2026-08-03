@@ -46,7 +46,7 @@ pub fn scan_directory_for_midis(dir_path: &Path) -> Vec<ScannedSong> {
 
 /// 1. Pick a folder using RFD and save it to config
 // Inside open_midi_folder_picker (or wherever the async file picker callback handles the result):
-pub fn open_midi_folder_picker(state: &mut UiState) -> BoxFuture<MsgFn> {
+pub fn open_midi_folder_picker(_state: &mut UiState) -> BoxFuture<MsgFn> {
     on_async(
         async {
             rfd::AsyncFileDialog::new()
@@ -98,18 +98,7 @@ async fn open_midi_file_picker_fut() -> Option<(midi_file::MidiFile, PathBuf)> {
 }
 
 
-async fn open_midi_folder_picker_fut() -> Option<PathBuf> {
-    let folder = rfd::AsyncFileDialog::new()
-        .pick_folder()
-        .await;
-
-    if let Some(folder) = folder {
-        Some(folder.path().to_path_buf())
-    } else {
-        log::info!("User canceled folder dialog");
-        None
-    }
-}
+ 
 
 /// 2. Load a specific MIDI file chosen from the folder list
 pub fn load_midi_from_path(data: &mut UiState, song_path: PathBuf) -> BoxFuture<MsgFn> {

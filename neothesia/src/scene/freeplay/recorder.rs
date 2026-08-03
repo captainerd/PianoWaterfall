@@ -153,8 +153,8 @@ impl Preview {
             Duration::ZERO,
         );
         player.pause();
-        waterfall.update(player.time_without_lead_in() + ctx.config.animation_offset());
-
+        waterfall.update(player.time_without_lead_in() + ctx.config.animation_offset(), 0.0);
+ 
         Self {
             player,
             waterfall,
@@ -181,7 +181,7 @@ impl Preview {
 
         let time = self.player.time_without_lead_in() + ctx.config.animation_offset();
 
-        self.waterfall.update(time);
+        self.waterfall.update(time,0.0);
 
         if let Some(note_labels) = self.note_labels.as_mut() {
             note_labels.update(

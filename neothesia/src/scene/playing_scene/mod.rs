@@ -51,7 +51,7 @@ pub struct PlayingScene {
     mouse_to_midi_state: MouseToMidiEventState,
 
     deduced_chord_name: String,
-
+    is_song_finished: bool,
     top_bar: TopBar,
 }
 
@@ -100,7 +100,7 @@ impl PlayingScene {
             keyboard_layout.range.clone(),
             ctx.config.separate_channels(),
         );
-        waterfall.update(player.time_without_lead_in());
+       waterfall.update(player.time_without_lead_in() + ctx.config.animation_offset(), 0.0);
 
         let quad_renderer_bg = ctx.quad_renderer_factory.new_renderer();
         let quad_renderer_fg = ctx.quad_renderer_factory.new_renderer();
@@ -131,35 +131,58 @@ impl PlayingScene {
             deduced_chord_name: String::new(),
 
             top_bar: TopBar::new(),
+            is_song_finished: false,
         }
     }
+    
+fn update_glow(&mut self, delta: Duration) {
+    let Some(glow) = &mut self.glow else {
+        return;
+    };
 
-    fn update_glow(&mut self, delta: Duration) {
-        let Some(glow) = &mut self.glow else {
-            return;
+    glow.clear();
+
+    let keys = &self.keyboard.layout().keys;
+    let states = self.keyboard.key_states();
+    let range_start = self.keyboard.range().start() as usize;
+    let play_along = self.player.play_along();
+
+    for (key, state) in keys.iter().zip(states) {
+        let note_id = (key.id() + range_start) as u8;
+
+        let user_press = state.pressed_by_user();
+
+        // 1. MUST be physically pressed by the user (blocks auto-play idle notes)
+        if user_press.is_none() {
+            continue;
+        }
+
+        let file_color = state.pressed_by_file();
+        let is_human_waiting = play_along.is_note_required(note_id);
+
+        // 2. MUST be a valid song note (either actively sounding in file OR waiting in human mode).
+        // If neither is true, it's a wrong note press -> BLOCK IT!
+        if file_color.is_none() && !is_human_waiting {
+            continue;
+        }
+
+        // 3. Get track color (prefer file_color, fallback to user_press if waiting)
+        let color = file_color.or(user_press);
+
+        let Some(color) = color else {
+            continue;
         };
 
-        glow.clear();
-
-        let keys = &self.keyboard.layout().keys;
-        let states = self.keyboard.key_states();
-
-        for (key, state) in keys.iter().zip(states) {
-            let Some(color) = state.pressed_by_file() else {
-                continue;
-            };
-
-            glow.push(
-                key.id(),
-                *color,
-                key.x(),
-                self.keyboard.pos().y,
-                key.width(),
-                delta,
-            );
-        }
+        glow.push(
+            key.id(),
+            *color,
+            key.x(),
+            self.keyboard.pos().y,
+            key.width(),
+            delta,
+        );
     }
-
+}
     fn update_chord_identifier(&mut self, enabled: bool) {
         if !enabled {
             return;
@@ -178,7 +201,7 @@ impl PlayingScene {
         self.deduced_chord_name = super::freeplay::chords::deduce_name(&notes).unwrap_or_default();
     }
 
-    #[profiling::function]
+#[profiling::function]
     fn update_midi_player(&mut self, ctx: &Context, delta: Duration) -> f32 {
         if self.top_bar.is_looper_active() && self.player.time() > self.top_bar.loop_end_timestamp()
         {
@@ -191,6 +214,9 @@ impl PlayingScene {
             let midi_events = self.player.update(delta);
             self.keyboard.file_midi_events(&ctx.config, &midi_events);
         }
+
+ 
+        self.update_glow(delta);
 
         self.player.time_without_lead_in() + ctx.config.animation_offset()
     }
@@ -208,6 +234,29 @@ impl PlayingScene {
         self.waterfall
             .resize(&ctx.config, self.keyboard.layout().clone());
     }
+
+ fn finish_and_exit(&mut self, ctx: &mut Context) {
+        let play_along = self.player.play_along();
+        
+        let stats = crate::scene::menu_scene::stats::SavedStats {
+            date: chrono::Utc::now(),
+            notes_hit: play_along.notes_hit(),
+            notes_missed: play_along.notes_missed(),
+            wrong_notes: play_along.wrong_notes(),
+            correct_note_times: play_along.notes_hit(),
+        };
+
+        let current_song = self.player.song().clone();
+        let song_name = crate::song::Song::get_clean_songname(current_song.file.name.clone());
+        stats.save_for_song(&song_name);
+
+        ctx.proxy
+            .send_event(NeothesiaEvent::Stats(Some(current_song)))
+            .ok();
+    }
+
+
+
 }
 
 impl Scene for PlayingScene {
@@ -220,7 +269,8 @@ impl Scene for PlayingScene {
         self.toast_manager.update(&mut self.text_renderer);
 
         let time = self.update_midi_player(ctx, delta);
-        self.waterfall.update(time);
+     self.waterfall.update(time, delta.as_secs_f32());
+
         self.guidelines.update(
             &mut self.quad_renderer_bg,
             ctx.config.animation_speed(),
@@ -240,9 +290,9 @@ impl Scene for PlayingScene {
                 time,
             );
         }
+    
 
-        self.update_glow(delta);
-
+      
         TopBar::update(self, ctx);
 
         if ctx.config.chord_identifier() {
@@ -253,6 +303,13 @@ impl Scene for PlayingScene {
                 .height(25.0)
                 .width(ctx.window_state.logical_size.width)
                 .build(&mut self.nuon);
+        }
+
+        // Check if the song has finished playing
+        if self.player.is_finished() && !self.player.is_paused() && !self.is_song_finished {
+            self.player.pause();
+            self.is_song_finished = true;
+            self.finish_and_exit(ctx);
         }
 
         super::render_nuon(&mut self.nuon, &mut self.nuon_renderer, ctx);
@@ -275,12 +332,6 @@ impl Scene for PlayingScene {
             ctx.window_state.physical_size,
             ctx.window_state.scale_factor as f32,
         );
-
-        if self.player.is_finished() && !self.player.is_paused() {
-            ctx.proxy
-                .send_event(NeothesiaEvent::MainMenu(Some(self.player.song().clone())))
-                .ok();
-        }
     }
 
     #[profiling::function]
@@ -308,9 +359,7 @@ impl Scene for PlayingScene {
         }
 
         if event.back_mouse_pressed() || event.key_released(Key::Named(NamedKey::Escape)) {
-            ctx.proxy
-                .send_event(NeothesiaEvent::MainMenu(Some(self.player.song().clone())))
-                .ok();
+            self.finish_and_exit(ctx);
         }
 
         if event.key_released(Key::Named(NamedKey::Space)) {

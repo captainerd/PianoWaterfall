@@ -6,6 +6,9 @@ use super::{GlowInstance, GlowPipeline};
 
 struct GlowState {
     time: f32,
+    active_timer: f32,
+    was_pressed_last_frame: bool,
+    pushed_this_frame: bool,
 }
 
 impl GlowState {
@@ -13,8 +16,25 @@ impl GlowState {
         150.0 + self.time.sin() * 10.0
     }
 
-    fn update(&mut self, delta: Duration) {
-        self.time += delta.as_secs_f32() * 5.0;
+    fn update(&mut self, delta: Duration, is_pressed: bool) {
+        let dt = delta.as_secs_f32();
+
+        if is_pressed {
+            if !self.was_pressed_last_frame {
+                // Brand new note press: reset timing
+                self.active_timer = 0.0;
+                self.time = 0.0;
+            } else {
+                // Note held down: progress age continuously
+                self.active_timer += dt;
+            }
+            self.time += dt * 5.0;
+            self.was_pressed_last_frame = true;
+        } else {
+            // Note released: reset state
+            self.was_pressed_last_frame = false;
+            self.active_timer = 0.0;
+        }
     }
 
     fn calc_color(&self, color: Color) -> [f32; 4] {
@@ -24,7 +44,6 @@ impl GlowState {
         color[0] += v;
         color[1] += v;
         color[2] += v;
-        color[3] = 0.2;
         color
     }
 }
@@ -35,23 +54,37 @@ pub struct GlowRenderer {
 }
 
 impl GlowRenderer {
-    pub fn new(
-        gpu: &Gpu,
-        transform: &Uniform<TransformUniform>,
-        layout: &piano_layout::KeyboardLayout,
-    ) -> Self {
+  pub fn new(
+    gpu: &Gpu,
+    transform: &Uniform<TransformUniform>,
+    layout: &piano_layout::KeyboardLayout,
+) -> Self {
         let pipeline = GlowPipeline::new(gpu, transform);
 
         let states: Vec<GlowState> = layout
             .range
             .iter()
-            .map(|_| GlowState { time: 0.0 })
+            .map(|_| GlowState {
+                time: 0.0,
+                active_timer: 0.0,
+                was_pressed_last_frame: false,
+                pushed_this_frame: false,
+            })
             .collect();
 
         Self { pipeline, states }
     }
 
     pub fn prepare(&mut self) {
+        // Process keys that were NOT pushed during update_glow() this frame
+        for state in &mut self.states {
+            if !state.pushed_this_frame {
+                state.update(Duration::ZERO, false);
+            }
+            // Reset for the next frame iteration
+            state.pushed_this_frame = false;
+        }
+
         self.pipeline.prepare();
     }
 
@@ -72,8 +105,15 @@ impl GlowRenderer {
         key_w: f32,
         delta: Duration,
     ) {
+        if id >= self.states.len() {
+            return;
+        }
+
         let state = &mut self.states[id];
-        state.update(delta);
+
+        // Mark pushed so prepare() doesn't treat it as released
+        state.pushed_this_frame = true;
+        state.update(delta, true);
 
         let color = state.calc_color(color);
         let glow_w = state.size();
@@ -83,6 +123,7 @@ impl GlowRenderer {
             position: [key_x - glow_w / 2.0 + key_w / 2.0, key_y - glow_w / 2.0],
             size: [glow_w, glow_h],
             color,
+            age: state.active_timer,
         });
     }
 }

@@ -1,4 +1,4 @@
-use midi_file::midly::{MidiMessage, num::u4};
+use midi_file::midly::{num::u4, MidiMessage};
 
 use crate::{
     output_manager::OutputConnection,
@@ -291,14 +291,38 @@ pub struct PlayAlong {
 }
 
 impl PlayAlong {
-    fn new(user_keyboard_range: piano_layout::KeyboardRange) -> Self {
+    pub fn new(user_keyboard_range: piano_layout::KeyboardRange) -> Self {
         Self {
             user_keyboard_range,
-            required_notes: Default::default(),
-            user_pressed_recently: Default::default(),
-            in_proggres_file_notes: Default::default(),
+            required_notes: HashMap::new(),
+            user_pressed_recently: HashMap::new(),
+            in_proggres_file_notes: HashSet::new(),
             stats: PlayerStats::default(),
         }
+    }
+
+    pub fn notes_hit(&self) -> usize {
+        self.stats.played_early.len() + self.stats.played_late.len()
+    }
+
+    pub fn is_note_required(&self, note_id: u8) -> bool {
+        self.required_notes.contains_key(&note_id)
+    }
+
+    pub fn wrong_notes(&self) -> usize {
+        self.stats.wrong_notes
+    }
+
+    pub fn notes_missed(&self) -> usize {
+        self.required_notes.len()
+    }
+
+    pub fn late_notes(&self) -> usize {
+        self.stats.played_late.len()
+    }
+
+    pub fn early_notes(&self) -> usize {
+        self.stats.played_early.len()
     }
 
     fn update(&mut self) {

@@ -104,6 +104,7 @@ pub enum Page {
     Exit,
     Main,
     Settings,
+    Stats,
     TrackSelection,
     SongSelection,
 }

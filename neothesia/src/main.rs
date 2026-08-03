@@ -31,6 +31,7 @@ use crate::utils::window::WinitEvent;
 pub enum NeothesiaEvent {
     /// Go to playing scene
     Play(song::Song),
+    Stats(Option<song::Song>),
     FreePlay(Option<song::Song>),
     /// Go to main menu scene
     MainMenu(Option<song::Song>),
@@ -74,6 +75,7 @@ impl Neothesia {
         self.context.window_state.window_event(event);
 
         match event {
+            
             // Windows sets size to 0 on minimise
             WindowEvent::Resized(ps) if ps.width > 0 && ps.height > 0 => {
                 self.surface.resize_swap_chain(
@@ -87,6 +89,7 @@ impl Neothesia {
             WindowEvent::ScaleFactorChanged { .. } => {
                 self.context.resize();
             }
+    
             WindowEvent::KeyboardInput { .. } => {
                 use winit::keyboard::Key;
 
@@ -150,6 +153,11 @@ impl Neothesia {
             NeothesiaEvent::MidiInput { channel, message } => {
                 self.game_scene
                     .midi_event(&mut self.context, channel, &message);
+            }
+            NeothesiaEvent::Stats(song) => {
+                let mut menu_scene = menu_scene::MenuScene::new(&mut self.context, song);
+                menu_scene.state.go_to(menu_scene::state::Page::Stats);
+                self.game_scene = Box::new(menu_scene);
             }
             NeothesiaEvent::Exit => {
                 event_loop.exit();

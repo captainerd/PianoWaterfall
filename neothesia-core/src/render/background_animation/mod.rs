@@ -27,7 +27,7 @@ impl BgPipeline {
         let time_uniform = Uniform::new(
             &gpu.device,
             TimeUniform::default(),
-            wgpu::ShaderStages::FRAGMENT,
+         wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
         );
 
         let render_pipeline_layout =
