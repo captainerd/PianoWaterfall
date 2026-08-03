@@ -52,6 +52,19 @@ impl Song {
         Self { file, config }
     }
 
+    pub fn get_clean_songname(filename: String) -> String {
+        let lower_filename = filename.to_lowercase();
+
+        let stem = if lower_filename.ends_with(".midi") {
+            &filename[..filename.len() - 5]
+        } else if lower_filename.ends_with(".mid") {
+            &filename[..filename.len() - 4]
+        } else {
+            &filename
+        };
+
+        stem.replace('_', " ")
+    }
     pub fn from_env(ctx: &Context) -> Option<Self> {
         let args: Vec<String> = std::env::args().collect();
         let midi_file = if args.len() > 1 {
