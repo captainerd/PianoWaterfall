@@ -2,11 +2,12 @@ pub mod state;
 use bytes::Bytes;
 use state::{Page, UiState};
 use std::collections::HashMap;
-
+mod list_btn;
 mod midi_picker;
 use midi_picker::open_midi_file_picker;
-
+mod select_song;
 mod neo_btn;
+ 
 use neo_btn::{neo_btn, neo_btn_icon};
 
 mod settings;
@@ -156,72 +157,7 @@ impl MenuScene {
         id
     }
 
-    fn song_selection_page_ui(&mut self, ctx: &mut Context, ui: &mut nuon::Ui) {
-        let win_w = ctx.window_state.logical_size.width;
-        let win_h = ctx.window_state.logical_size.height;
-
-        let panel_w = 700.0;
-        let panel_h = 500.0;
-        let btn_w = 200.0;
-        let btn_h = 45.0;
-        let item_h = 40.0;
-
-        nuon::translate()
-            .x(nuon::center_x(win_w, panel_w))
-            .y(nuon::center_y(win_h, panel_h))
-            .build(ui, |ui| {
-                nuon::label()
-                    .text("Song Library")
-                    .font_size(28.0)
-                    .size(panel_w - btn_w, 40.0)
-                    .build(ui);
-
-                nuon::translate().x(panel_w - btn_w).build(ui, |ui| {
-                    if neo_btn().size(btn_w, btn_h).label("Change Folder").build(ui) {
-                        self.futures.push(midi_picker::open_midi_folder_picker(&mut self.state));
-                    }
-                });
-
-                nuon::translate().y(50.0).add_to_current(ui);
-
-                let songs = if let Some(dir) = ctx.config.song_directory() {
-                    midi_picker::scan_directory_for_midis(dir)
-                } else {
-                    Vec::new()
-                };
-
-                if songs.is_empty() {
-                    nuon::label()
-                        .text("No MIDI files found. Click 'Change Folder' to choose a directory.")
-                        .font_size(18.0)
-                        .size(panel_w, 100.0)
-                        .build(ui);
-                } else {
-                    nuon::scroll().build(ui, |ui| {
-                        for song_info in songs {
-                            if neo_btn()
-                                .size(panel_w - 20.0, item_h)
-                                .label(&song_info.name)
-                                .build(ui)
-                            {
-                                self.futures.push(midi_picker::load_midi_from_path(
-                                    &mut self.state,
-                                    song_info.path,
-                                ));
-                                self.state.go_to(Page::TrackSelection);
-                            }
-                            nuon::translate().y(item_h + 5.0).add_to_current(ui);
-                        }
-                    });
-                }
-
-                nuon::translate().y(panel_h - 60.0).build(ui, |ui| {
-                    if neo_btn().size(150.0, btn_h).label("Back").build(ui) {
-                        self.state.go_back();
-                    }
-                });
-            });
-    }
+  
 
     fn main_ui(&mut self, ctx: &mut Context) {
         if self.state.is_loading() {
