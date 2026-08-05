@@ -16,21 +16,26 @@ pub const TABLE_W: f32 = 800.0;
 pub struct SavedStats {
     pub date: DateTime<Utc>,
     pub notes_hit: usize,
-    pub notes_missed: usize,
     pub slow_hits: usize,
     pub wrong_notes: usize,
     pub correct_note_times: usize,
 }
 
 impl SavedStats {
-   pub fn score_cooking(&self) -> usize {
-    let total_attempts = self.notes_hit + self.wrong_notes + self.notes_missed;
-    if total_attempts == 0 {
-        return 0;
+    pub fn delete_for_song(song_name: &str) {
+        if let Some(path) = Self::get_file_path(song_name) {
+            let _ = fs::remove_file(path);
+        }
     }
-    let accuracy = (self.notes_hit as f32 / total_attempts as f32) * 100.0;
-    accuracy.round() as usize
-}
+
+    pub fn score_cooking(&self) -> usize {
+        let total_attempts = self.notes_hit + self.wrong_notes + self.slow_hits;
+        if total_attempts == 0 {
+            return 0;
+        }
+        let accuracy = (self.notes_hit as f32 / total_attempts as f32) * 100.0;
+        accuracy.round() as usize
+    }
 
     fn get_file_path(song_name: &str) -> Option<PathBuf> {
         let proj_dirs = directories::ProjectDirs::from("", "", "neothesia")?;
@@ -126,16 +131,16 @@ impl super::MenuScene {
             }
         });
 
-        let sorted_stats = SavedStats::load_for_song(song_name);
+        let sorted_stats = SavedStats::load_for_song(song_name.clone());
 
         let list_y = top_header_h + ROW_H + 10.0;
         let list_h = (win_h - list_y - bottom_bar_h - 10.0).max(100.0);
 
-        self.stats_scroll = nuon::scroll()
-            .scissor_size(win_w, list_h)
-            .scroll(self.stats_scroll)
-            .build(ui, |ui| {
-                nuon::translate().x(start_x).y(list_y).build(ui, |ui| {
+        nuon::translate().x(start_x).y(list_y).build(ui, |ui| {
+            self.stats_scroll = nuon::scroll()
+                .scissor_size(TABLE_W, list_h)
+                .scroll(self.stats_scroll)
+                .build(ui, |ui| {
                     if sorted_stats.is_empty() {
                         nuon::label()
                             .text("No scores recorded yet. Play the song to set a score!")
@@ -176,7 +181,7 @@ impl super::MenuScene {
                                     (date_str, 170.0),
                                     (score.to_string(), 100.0),
                                     (stats.notes_hit.to_string(), 100.0),
-                                   (stats.slow_hits.to_string(), 100.0),
+                                    (stats.slow_hits.to_string(), 100.0),
                                     (stats.wrong_notes.to_string(), 110.0),
                                     (stats.correct_note_times.to_string(), 140.0),
                                 ];
@@ -198,8 +203,9 @@ impl super::MenuScene {
                         }
                     }
                 });
-            });
+        });
 
+        // Single unified bottom bar containing Back, Delete Stats, and Play buttons
         nuon::translate().x(0.0).y(win_h).build(ui, |ui| {
             nuon::translate().y(-10.0).add_to_current(ui);
             nuon::translate().y(-bottom_bar_h).add_to_current(ui);
@@ -208,12 +214,21 @@ impl super::MenuScene {
             let w = 80.0;
             let h = bottom_bar_h;
 
+            // Back button
             nuon::translate().x(gap).build(ui, |ui| {
                 if neo_btn_icon(ui, w, h, icons::left_arrow_icon()) {
                     self.state.go_back();
                 }
             });
 
+            // Trash/Clean stats button
+            nuon::translate().x(gap * 2.0 + w).build(ui, |ui| {
+                if neo_btn_icon(ui, w, h, icons::trash_icon()) {
+                    SavedStats::delete_for_song(&song_name);
+                }
+            });
+
+            // Play button (if song exists)
             if self.state.song().is_some() {
                 nuon::translate().x(win_w - w - gap).build(ui, |ui| {
                     if neo_btn_icon(ui, w, h, icons::play_icon()) {

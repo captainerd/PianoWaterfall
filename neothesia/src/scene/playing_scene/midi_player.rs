@@ -313,17 +313,15 @@ impl PlayAlong {
         self.stats.wrong_notes
     }
 
-    pub fn notes_missed(&self) -> usize {
-        self.required_notes.len()
+   pub fn slow_hits(&self) -> usize {
+        self.stats.count_too_late()
     }
 
     pub fn late_notes(&self) -> usize {
         self.stats.played_late.len()
     }
 
-    pub fn early_notes(&self) -> usize {
-        self.stats.played_early.len()
-    }
+  
 
     fn update(&mut self) {
         // Instead of calling .elapsed() per item let's fetch `now` once, and subtract it ourselves

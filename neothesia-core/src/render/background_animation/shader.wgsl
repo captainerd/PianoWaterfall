@@ -18,88 +18,137 @@ struct VertexOutput {
 fn vs_main(vertex: Vertex) -> VertexOutput {
     var out: VertexOutput;
     out.position = vec4<f32>(vertex.position, 0.0, 1.0);
-    out.uv_position = (vertex.position + vec2<f32>(1.0, 1.0)) / 2.0;
+    out.uv_position = (vertex.position + vec2<f32>(1.0, 1.0)) * 0.5;
     return out;
 }
 
 fn rot_z(angle: f32) -> mat2x2<f32> {
-    let ca = cos(angle);
-    let sa = sin(angle);
+    let c = cos(angle);
+    let s = sin(angle);
     return mat2x2<f32>(
-        vec2<f32>(ca, -sa),
-        vec2<f32>(sa, ca)
+        vec2<f32>(c, -s),
+        vec2<f32>(s,  c)
     );
 }
 
-const speed: f32 = -0.35;
-const live_time: f32 = 3.0;
+// Slower falling speed
+const speed: f32 = 0.25;
 
-fn note_render(uv: vec2<f32>, pos: f32, color: vec3<f32>) -> vec3<f32> {
-    let mod_x: f32 = uv.x % (0.1 * 2.5 * 2.0);
+// Rounded rectangle SDF
+fn rounded_rect(p: vec2<f32>, half_size: vec2<f32>, radius: f32) -> f32 {
+    let q = abs(p) - half_size + vec2<f32>(radius);
+    return length(max(q, vec2<f32>(0.0))) + min(max(q.x, q.y), 0.0) - radius;
+}
 
-    // Punchy neon crimson-red lane glow (zero green to eliminate yellow/brown)
-    var col: vec3<f32> = vec3<f32>(0.45, 0.04, 0.08);
+// Piano-key shaped falling note with an even darker aesthetic
+fn note_render(
+    uv: vec2<f32>,
+    center: vec2<f32>,
+    size: vec2<f32>,
+    color: vec3<f32>,
+) -> vec3<f32> {
 
-    if pos == 0.5 {
-        col = vec3<f32>(0.22, 0.01, 0.03);
-    }
+    let dist = rounded_rect(uv - center, size, 0.015);
 
-    if uv.y > 0.0 && uv.y < 1.0 {
-        let intensity = smoothstep(-0.003, 0.0, 127.0 / 5800.0 - abs(mod_x - pos));
-        return mix(color, col, vec3<f32>(intensity));
-    } else {
-        return color;
-    }
+    let body = 1.0 - smoothstep(0.0, 0.010, dist);
+    let glow = 1.0 - smoothstep(0.0, 0.060, dist);
+
+    // Darker, more subdued crimson/magenta tone
+    let noteColor = vec3<f32>(0.38, 0.07, 0.12);
+
+    return mix(
+        color,
+        noteColor + glow * vec3<f32>(0.09, 0.01, 0.02),
+        max(body, glow * 0.25)
+    );
 }
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    var uv: vec2<f32> = in.uv_position;
 
-    // Deep pitch-black to dark ruby-crimson vertical gradient (no brown tints)
-    var base_bg = mix(vec3<f32>(0.01, 0.005, 0.008), vec3<f32>(0.04, 0.008, 0.015), uv.y);
-    var color: vec3<f32> = base_bg;
+    let uv = in.uv_position;
 
-    // Slight angle for dynamic background streams
-    uv = uv * rot_z(0.5);
-    uv.x = uv.x + 1.0;
-    uv.x = uv.x * 1.5;
-    uv.x = uv.x % 0.5;
+    //------------------------------------------------------
+    // Background (Dark)
+    //------------------------------------------------------
+
+    var color = mix(
+        vec3<f32>(0.002, 0.001, 0.002),
+        vec3<f32>(0.012, 0.002, 0.004),
+        uv.y
+    );
+
+    //------------------------------------------------------
+    // Optional diagonal background streaks
+    //------------------------------------------------------
 
     {
-        uv.y = uv.y - 1.5;
+        var bg = uv;
+        bg = bg * rot_z(0.45);
 
-        var off: f32 = 0.0;
-        var pos: vec2<f32> = uv;
+        let stripe = abs(fract(bg.x * 14.0) - 0.5);
 
-        pos.y = pos.y - (((time_uniform.time * speed + off) / 5.0) % 1.0) * live_time;
-        color = note_render(pos, 0.1, color);
+        let s = smoothstep(
+            0.06,
+            0.0,
+            stripe
+        );
 
-        off = 1.0;
-        pos = uv;
-        pos.y = pos.y - (((time_uniform.time * speed + off) / 5.0) % 1.0) * live_time;
-        color = note_render(pos, 0.1 * 2.0, color);
-
-        off = 3.0;
-        pos = uv;
-        pos.y = pos.y - (((time_uniform.time * speed + off) / 5.0) % 1.0) * live_time;
-        color = note_render(pos, 0.1 * 3.0, color);
-
-        off = 2.0;
-        pos = uv;
-        pos.y = pos.y - (((time_uniform.time * speed + off) / 5.0) % 1.0) * live_time;
-        color = note_render(pos, 0.1 * 4.0, color);
-
-        off = 0.0;
-        pos = uv;
-        pos.y = pos.y - (((time_uniform.time * speed + off) / 5.0) % 1.0) * live_time;
-        color = note_render(pos, 0.1 * 5.0, color);
-
-        off = 4.0;
-        pos = uv;
-        pos.y = pos.y - (((time_uniform.time * speed + off) / 5.0) % 1.0) * live_time;
-        color = note_render(pos, 0.1 * 5.0, color);
+        color += s * vec3<f32>(0.01, 0.001, 0.002);
     }
+
+    //------------------------------------------------------
+    // Falling direction (Straight down)
+    //------------------------------------------------------
+
+    let angle = radians(-5.0);
+
+    let dir = normalize(vec2<f32>(
+        sin(angle),
+        -cos(angle)
+    ));
+
+    //------------------------------------------------------
+    // Lanes
+    //------------------------------------------------------
+
+    let laneCount = 12u;
+
+    for (var i = 0u; i < laneCount; i++) {
+
+        let laneX = -0.05 + f32(i) * 0.095;
+
+        let off = f32(i) * 1.37 + sin(f32(i) * 4.5) * 0.8;
+        let heightVariation = 0.07 + abs(sin(f32(i) * 2.1)) * 0.12;
+
+        let t = fract(time_uniform.time * (speed + (sin(f32(i)) * 0.05)) + off);
+
+        let start = vec2<f32>(laneX, 1.35);
+        let center = start + dir * (t * 2.0);
+
+        color = note_render(
+            uv,
+            center,
+            vec2<f32>(
+                0.025,
+                heightVariation
+            ),
+            color
+        );
+    }
+
+    //------------------------------------------------------
+    // Keyboard line
+    //------------------------------------------------------
+
+    let line =
+        smoothstep(
+            0.004,
+            0.0,
+            abs(uv.y - 0.08)
+        );
+
+    color += line * vec3<f32>(0.20, 0.02, 0.04);
 
     return vec4<f32>(color, 0.85);
 }

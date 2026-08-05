@@ -250,7 +250,7 @@ impl MenuScene {
                     .x(-w / 2.0)
                     .y(logo_h + post_logo_gap)
                     .build(ui, |ui| {
-                        if neo_btn().size(w, h).label("Select Song").build(ui) {
+                        if neo_btn().size(w, h).label("Song Library").build(ui) {
                             self.state.go_to(Page::SongSelection);
                         }
 

@@ -160,24 +160,26 @@ impl PlayingScene {
         let is_file_active = file_color.is_some();
         let is_human_waiting = play_along.is_note_required(note_id);
 
-        let color = if is_user_pressed {
-            file_color.or(user_press)
+       let color = if is_user_pressed {
+            file_color.copied()
         } else if is_file_active && !is_human_waiting {
-            file_color
+            file_color.copied()
         } else {
-            continue;
+            None
         };
 
         let Some(color) = color else {
             continue;
         };
 
+     
+
         // Check if this specific MIDI note had a NoteOn event this frame
         let retrigger = retriggered_notes.contains(&note_id);
    
         glow.push(
             idx,
-            *color,
+            color,
             key.x(),
             self.keyboard.pos().y,
             key.width(),
@@ -253,21 +255,13 @@ fn update_midi_player(&mut self, ctx: &Context, delta: Duration) -> f32 {
         let play_along = self.player.play_along();
         
         let stats = crate::scene::menu_scene::stats::SavedStats {
-            date: chrono::Utc::now(),
-            notes_hit: play_along.notes_hit(),
-            notes_missed: play_along.notes_missed(),
-              slow_hits: play_along.notes_missed(),
-            wrong_notes: play_along.wrong_notes(),
-            correct_note_times: play_along.notes_hit(),
-        };
-        println!(
-    "hit={} early={} late={} wrong={} missed={}",
-    play_along.notes_hit(),
-    play_along.early_notes(),
-    play_along.late_notes(),
-    play_along.wrong_notes(),
-    play_along.notes_missed()
-);
+    date: chrono::Utc::now(),
+    notes_hit: play_along.notes_hit() - play_along.slow_hits(),
+    slow_hits: play_along.late_notes(), // Use actual late/slow hits here
+    wrong_notes: play_along.wrong_notes(),
+    correct_note_times: play_along.notes_hit(), // Or your duration metric
+};
+     
 
         let current_song = self.player.song().clone();
         let song_name = crate::song::Song::get_clean_songname(current_song.file.name.clone());

@@ -15,7 +15,10 @@ pub fn note_list_icon() -> &'static str { "\u{f49f}" }
 pub fn caret_down() -> &'static str { "\u{f229}" }
 pub fn record_icon() -> &'static str { "\u{f519}" }
 pub fn record_stop_icon() -> &'static str { "\u{f591}" }
+pub fn trash_icon() -> &'static str { "\u{F5DE}" }
+pub fn trash_fill_icon() -> &'static str { "\u{F5DD}" }
 pub fn save_icon() -> &'static str { "\u{f7D9}" }
+pub fn film_icon() -> &'static str { "\u{F3C3}" } //
 
 // Toggle Icons (Unicode eye symbols if font available, or fallback strings)
 pub fn eye_icon() -> &'static str { "\u{F341}" }
