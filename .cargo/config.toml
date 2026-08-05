@@ -1,5 +1,6 @@
-[source.crates-io]
-replace-with = "vendored-sources"
-
-[source.vendored-sources]
-directory = "vendor"
+# Delete these lines from .cargo/config.toml:
+# [source.crates-io]
+# replace-with = "vendored-sources"
+# 
+# [source.vendored-sources]
+# directory = "vendor"
