@@ -2,7 +2,8 @@
 
 Piano learning game. It's a fork of [Neothesia](https://github.com/polymeilex/neothesia) by polymeilex, adding game stats, a MIDI library scene, and various other stuff that fits my personal learning workflow.
 
- 
+ <img width="1809" height="1214" alt="image" src="https://github.com/user-attachments/assets/6ad90434-0dd1-4e99-a81a-dd7a76e68197" />
+
 ---
 
 ## About This Fork
@@ -24,6 +25,7 @@ PianoWaterfall expands upon Neothesia with targeted improvements designed to eli
 7. **Bug Fixes:** Resolved UI layout scaling bugs introduced by Nuon (such as incorrectly calculated click-region rectangles under XFCE at 720p that were pushing the play screen UI to the left).
 
 ---
+<img width="1809" height="1214" alt="image" src="https://github.com/user-attachments/assets/c8c3fbba-8ed4-4b84-b30f-bfdc37fa2e9c" />
 
 ## Original Features
 
