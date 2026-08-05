@@ -4,3 +4,8 @@
 /out
 .DS_Store
 node_modules
+/vendor/
+/.flatpak-builder/
+/repo-dir/
+*.flatpak
+/target/

@@ -1,3 +1,0 @@
-[submodule "sys/lib"]
-	path = sys/lib
-	url = ../fluidlite
