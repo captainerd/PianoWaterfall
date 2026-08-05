@@ -1711,99 +1711,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "neothesia"
-version = "0.4.0"
-dependencies = [
- "bytes",
- "chrono",
- "cosmic-text",
- "cpal",
- "directories",
- "embed-resource",
- "env_logger",
- "fluidlite",
- "futures-channel",
- "lilt",
- "log",
- "midi-file",
- "midi-io",
- "neothesia-core",
- "neothesia-image",
- "nuon",
- "oxisynth",
- "piano-layout",
- "pollster 1.0.1",
- "profiling",
- "puffin",
- "puffin_http",
- "rfd",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "wgpu",
- "wgpu-jumpstart",
- "winit",
-]
-
-[[package]]
-name = "neothesia-ai"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "midly",
- "ndarray",
- "rten",
- "rten-tensor",
- "serde",
- "serde_json",
- "symphonia",
- "symphonium",
-]
-
-[[package]]
-name = "neothesia-cli"
-version = "0.1.0"
-dependencies = [
- "clap",
- "env_logger",
- "ffmpeg-encoder",
- "midi-file",
- "neothesia-core",
- "oxisynth",
- "pollster 1.0.1",
- "wgpu-jumpstart",
-]
-
-[[package]]
-name = "neothesia-core"
-version = "0.1.0"
-dependencies = [
- "bytemuck",
- "bytes",
- "dpi",
- "euclid",
- "glyphon",
- "log",
- "midi-file",
- "neothesia-image",
- "objc2-foundation 0.3.2",
- "piano-layout",
- "profiling",
- "ron",
- "serde",
- "wgpu",
- "wgpu-jumpstart",
-]
-
-[[package]]
-name = "neothesia-image"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "png",
-]
-
-[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1889,7 +1796,7 @@ name = "nuon"
 version = "0.1.0"
 dependencies = [
  "euclid",
- "neothesia-image",
+ "piano-watterfall-image",
 ]
 
 [[package]]
@@ -2346,6 +2253,99 @@ checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
 [[package]]
 name = "piano-layout"
 version = "0.1.0"
+
+[[package]]
+name = "piano-watterfall"
+version = "0.4.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "cosmic-text",
+ "cpal",
+ "directories",
+ "embed-resource",
+ "env_logger",
+ "fluidlite",
+ "futures-channel",
+ "lilt",
+ "log",
+ "midi-file",
+ "midi-io",
+ "nuon",
+ "oxisynth",
+ "piano-layout",
+ "piano-watterfall-core",
+ "piano-watterfall-image",
+ "pollster 1.0.1",
+ "profiling",
+ "puffin",
+ "puffin_http",
+ "rfd",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "wgpu",
+ "wgpu-jumpstart",
+ "winit",
+]
+
+[[package]]
+name = "piano-watterfall-ai"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "midly",
+ "ndarray",
+ "rten",
+ "rten-tensor",
+ "serde",
+ "serde_json",
+ "symphonia",
+ "symphonium",
+]
+
+[[package]]
+name = "piano-watterfall-cli"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "env_logger",
+ "ffmpeg-encoder",
+ "midi-file",
+ "oxisynth",
+ "piano-watterfall-core",
+ "pollster 1.0.1",
+ "wgpu-jumpstart",
+]
+
+[[package]]
+name = "piano-watterfall-core"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "bytes",
+ "dpi",
+ "euclid",
+ "glyphon",
+ "log",
+ "midi-file",
+ "objc2-foundation 0.3.2",
+ "piano-layout",
+ "piano-watterfall-image",
+ "profiling",
+ "ron",
+ "serde",
+ "wgpu",
+ "wgpu-jumpstart",
+]
+
+[[package]]
+name = "piano-watterfall-image"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "png",
+]
 
 [[package]]
 name = "pin-project"

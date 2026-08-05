@@ -11,7 +11,7 @@ pub type Box2D = euclid::default::Box2D<f32>;
 pub type Rect = euclid::default::Rect<f32>;
 
 mod settings;
-use neothesia_image::ImageIdentifier;
+use piano_watterfall_image::ImageIdentifier;
 pub use settings::*;
 
 pub fn center_y(container_h: f32, item_h: f32) -> f32 {
