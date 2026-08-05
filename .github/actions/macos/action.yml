@@ -10,10 +10,10 @@ runs:
       run: cargo build --release
     - name: copy binary
       shell: bash
-      run: cp target/release/neothesia .github/app/Neothesia.app/Contents/MacOS
+      run: cp target/release/piano-waterfall .github/app/piano-waterfall.app/Contents/MacOS
     - name: zip binary
       shell: bash
-      run: cd .github/app/ && zip -r app.zip Neothesia.app && cd ../..
+      run: cd .github/app/ && zip -r app.zip piano-waterfall.app && cd ../..
     - uses: actions/upload-artifact@v6
       with:
         name: macos-artifact

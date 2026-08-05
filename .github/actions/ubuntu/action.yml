@@ -13,10 +13,10 @@ runs:
       run: cargo build --release
     - name: Chmod +x
       shell: bash
-      run: chmod +x target/release/neothesia
+      run: chmod +x target/release/piano-waterfall
     - name: zip binary
       shell: bash
-      run: zip -rj app.zip target/release/neothesia
+      run: zip -rj app.zip target/release/piano-waterfall
     - uses: actions/upload-artifact@v6
       with:
         name: ubuntu-artifact

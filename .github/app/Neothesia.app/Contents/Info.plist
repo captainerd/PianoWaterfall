@@ -3,11 +3,11 @@
 <plist version="1.0">
     <dict>
         <key>CFBundleExecutable</key>
-        <string>neothesia</string>
+        <string>piano-waterfall</string>
         <key>CFBundleIdentifier</key>
-        <string>io.github.polymeilex.neothesia</string>
+        <string>io.github.polymeilex.piano-waterfall</string>
         <key>CFBundleName</key>
-        <string>Neothesia</string>
+        <string>piano-waterfall</string>
         <key>CFBundleIconFile</key>
         <string>icon.icns</string>
         <key>CFBundleInfoDictionaryVersion</key>

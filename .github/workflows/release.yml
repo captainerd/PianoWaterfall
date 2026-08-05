@@ -15,11 +15,11 @@ jobs:
       - name: ls
         run: ls -l app.zip
       - name: Rename
-        run: mv app.zip neothesia-ubuntu.zip
+        run: mv app.zip piano-waterfall-ubuntu.zip
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{github.ref_name}} neothesia-ubuntu.zip
+        run: gh release upload ${{github.ref_name}} piano-waterfall-ubuntu.zip
 
   build_ubuntu_recorder:
     runs-on: ubuntu-latest
@@ -30,12 +30,12 @@ jobs:
       - name: ls
         run: ls -l app.zip
       - name: Rename
-        run: mv app.zip neothesia-cli-ubuntu.zip
+        run: mv app.zip piano-waterfall-cli-ubuntu.zip
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_FLAGS: --features build-ffmpeg
-        run: gh release upload ${{github.ref_name}} neothesia-cli-ubuntu.zip
+        run: gh release upload ${{github.ref_name}} piano-waterfall-cli-ubuntu.zip
 
   build_windows:
     runs-on: windows-latest
@@ -44,13 +44,13 @@ jobs:
       - id: Build
         uses: ./.github/actions/windows
       - name: ls
-        run: ls -l target/release/neothesia.exe
+        run: ls -l target/release/piano-waterfall.exe
       - name: Rename
-        run: Move-Item -Path target/release/neothesia.exe -Destination neothesia.exe
+        run: Move-Item -Path target/release/piano-waterfall.exe -Destination piano-waterfall.exe
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{github.ref_name}} neothesia.exe
+        run: gh release upload ${{github.ref_name}} piano-waterfall.exe
 
   build_windows_recorder:
     runs-on: windows-latest
@@ -63,13 +63,13 @@ jobs:
       - id: Build
         uses: ./.github/actions/windows-recorder
       - name: ls
-        run: ls -l target/release/neothesia-cli.exe
+        run: ls -l target/release/piano-waterfall-cli.exe
       - name: Rename
-        run: Move-Item -Path target/release/neothesia-cli.exe -Destination neothesia-cli.exe
+        run: Move-Item -Path target/release/piano-waterfall-cli.exe -Destination piano-waterfall-cli.exe
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{github.ref_name}} neothesia-cli.exe
+        run: gh release upload ${{github.ref_name}} piano-waterfall-cli.exe
 
   build_macos:
     runs-on: macos-latest
@@ -84,9 +84,9 @@ jobs:
       - name: ls
         run: ls -l .github/app/app.zip
       - name: Rename
-        run: mv .github/app/app.zip neothesia-macos.zip
+        run: mv .github/app/app.zip piano-waterfall-macos.zip
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{github.ref_name}} neothesia-macos.zip
+        run: gh release upload ${{github.ref_name}} piano-waterfall-macos.zip
 

@@ -11,4 +11,4 @@ runs:
     - uses: actions/upload-artifact@v6
       with:
         name: windows-artifact
-        path: target/release/neothesia.exe
+        path: target/release/piano-waterfall.exe

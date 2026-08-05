@@ -47,7 +47,7 @@ jobs:
       - id: Build
         uses: ./.github/actions/windows
       - name: ls
-        run: ls -l target/release/neothesia.exe
+        run: ls -l target/release/piano-waterfall.exe
 
   build_windows_recorder:
     runs-on: windows-latest
@@ -60,7 +60,7 @@ jobs:
       - id: Build
         uses: ./.github/actions/windows-recorder
       - name: ls
-        run: ls -l target/release/neothesia-cli.exe
+        run: ls -l target/release/piano-waterfall-cli.exe
 
   build_macos:
     runs-on: macos-latest
