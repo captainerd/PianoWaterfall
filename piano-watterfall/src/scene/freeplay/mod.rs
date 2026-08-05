@@ -8,7 +8,7 @@ use winit::{
 };
 
 use crate::{
-    NeothesiaEvent,
+    PianowaterfallEvent,
     context::Context,
     scene::{
         MouseToMidiEventState, NuonRenderer, Scene,
@@ -240,7 +240,7 @@ impl Scene for FreeplayScene {
 
         if event.back_mouse_pressed() || event.key_released(Key::Named(NamedKey::Escape)) {
             ctx.proxy
-                .send_event(NeothesiaEvent::MainMenu(self.song.clone()))
+                .send_event(PianowaterfallEvent::MainMenu(self.song.clone()))
                 .ok();
         }
 

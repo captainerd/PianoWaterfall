@@ -12,7 +12,7 @@ use self::top_bar::TopBar;
 
 use super::{NuonRenderer, Scene};
 use crate::{
-    NeothesiaEvent, context::Context, render::WaterfallRenderer, scene::MouseToMidiEventState,
+    PianowaterfallEvent, context::Context, render::WaterfallRenderer, scene::MouseToMidiEventState,
     song::Song, utils::window::WinitEvent,
 };
 
@@ -270,7 +270,7 @@ fn update_midi_player(&mut self, ctx: &Context, delta: Duration) -> f32 {
         
 
         ctx.proxy
-            .send_event(NeothesiaEvent::Stats(Some(current_song)))
+            .send_event(PianowaterfallEvent::Stats(Some(current_song)))
             .ok();
     }
 

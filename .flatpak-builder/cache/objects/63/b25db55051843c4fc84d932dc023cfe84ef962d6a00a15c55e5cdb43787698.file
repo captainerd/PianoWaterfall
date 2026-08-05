@@ -1,0 +1,5 @@
+[Runtime]
+name=com.github.captainerd.piano_watterfall.Debug
+
+[ExtensionOf]
+ref=app/com.github.captainerd.piano_watterfall/x86_64/master

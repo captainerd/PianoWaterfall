@@ -28,8 +28,7 @@ use winit::{
 use crate::utils::window::WinitEvent;
 
 #[derive(Debug)]
-pub enum NeothesiaEvent {
-    /// Go to playing scene
+pub enum PianowaterfallEvent {    /// Go to playing scene
     Play(song::Song),
     Stats(Option<song::Song>),
     FreePlay(Option<song::Song>),
@@ -44,14 +43,14 @@ pub enum NeothesiaEvent {
     Exit,
 }
 
-struct Neothesia {
+struct Pianowaterfall {
     context: Context,
     game_scene: Box<dyn Scene>,
     // We are dropping surface last, because of some wgpu internal ref-counting errors that cause libwayland crasch
     surface: Surface,
 }
 
-impl Neothesia {
+impl Pianowaterfall {
     fn new(mut context: Context, surface: Surface) -> Self {
         let song = Song::from_env(&context);
         let game_scene = menu_scene::MenuScene::new(&mut context, song);
@@ -135,31 +134,31 @@ impl Neothesia {
     fn user_event(
         &mut self,
         event_loop: &winit::event_loop::ActiveEventLoop,
-        event: NeothesiaEvent,
+        event: PianowaterfallEvent,
     ) {
         match event {
-            NeothesiaEvent::Play(song) => {
+            PianowaterfallEvent::Play(song) => {
                 let to = playing_scene::PlayingScene::new(&mut self.context, song);
                 self.game_scene = Box::new(to);
             }
-            NeothesiaEvent::FreePlay(song) => {
+            PianowaterfallEvent::FreePlay(song) => {
                 let to = scene::freeplay::FreeplayScene::new(&mut self.context, song);
                 self.game_scene = Box::new(to);
             }
-            NeothesiaEvent::MainMenu(song) => {
+            PianowaterfallEvent::MainMenu(song) => {
                 let to = menu_scene::MenuScene::new(&mut self.context, song);
                 self.game_scene = Box::new(to);
             }
-            NeothesiaEvent::MidiInput { channel, message } => {
+            PianowaterfallEvent::MidiInput { channel, message } => {
                 self.game_scene
                     .midi_event(&mut self.context, channel, &message);
             }
-            NeothesiaEvent::Stats(song) => {
+            PianowaterfallEvent::Stats(song) => {
                 let mut menu_scene = menu_scene::MenuScene::new(&mut self.context, song);
                 menu_scene.state.go_to(menu_scene::state::Page::Stats);
                 self.game_scene = Box::new(menu_scene);
             }
-            NeothesiaEvent::Exit => {
+            PianowaterfallEvent::Exit => {
                 event_loop.exit();
             }
         }
@@ -217,7 +216,7 @@ impl Neothesia {
                 .gpu
                 .encoder
                 .begin_render_pass(&wgpu::RenderPassDescriptor {
-                    label: Some("Main Neothesia Pass"),
+                    label: Some("Main pianowaterfall Pass"),
                     color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                         view,
                         resolve_target: None,
@@ -248,9 +247,9 @@ impl Neothesia {
 }
 
 // This is so stupid, but winit holds us at gunpoint with create_window deprecation
-struct NeothesiaBootstrap(Option<Neothesia>, EventLoopProxy<NeothesiaEvent>);
+struct PianowaterfallBootstrap(Option<Pianowaterfall>, EventLoopProxy<PianowaterfallEvent>);
 
-impl ApplicationHandler<NeothesiaEvent> for NeothesiaBootstrap {
+impl ApplicationHandler<PianowaterfallEvent> for PianowaterfallBootstrap {
     fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
         if self.0.is_some() {
             return;
@@ -261,7 +260,7 @@ impl ApplicationHandler<NeothesiaEvent> for NeothesiaBootstrap {
                 width: 1080.0,
                 height: 720.0,
             })
-            .with_title("Neothesia")
+            .with_title("pianowaterfall")
             .with_min_inner_size(winit::dpi::LogicalSize {
                 width: 670.0,
                 height: 620.0,
@@ -304,14 +303,14 @@ impl ApplicationHandler<NeothesiaEvent> for NeothesiaBootstrap {
 
         let ctx = Context::new(window, window_state, self.1.clone(), gpu);
 
-        let app = Neothesia::new(ctx, surface);
+        let app = Pianowaterfall::new(ctx, surface);
         self.0 = Some(app);
     }
 
     fn user_event(
         &mut self,
         event_loop: &winit::event_loop::ActiveEventLoop,
-        event: NeothesiaEvent,
+        event: PianowaterfallEvent,
     ) {
         if let Some(app) = self.0.as_mut() {
             app.user_event(event_loop, event);
@@ -386,11 +385,11 @@ fn main() {
     #[cfg(feature = "profiling-on")]
     let _server = puffin_http::Server::new("127.0.0.1:8585").ok();
 
-    let event_loop: EventLoop<NeothesiaEvent> = EventLoop::with_user_event().build().unwrap();
+    let event_loop: EventLoop<PianowaterfallEvent> = EventLoop::with_user_event().build().unwrap();
     let proxy = event_loop.create_proxy();
 
     event_loop
-        .run_app(&mut NeothesiaBootstrap(None, proxy))
+        .run_app(&mut PianowaterfallBootstrap(None, proxy))
         .unwrap();
 }
 

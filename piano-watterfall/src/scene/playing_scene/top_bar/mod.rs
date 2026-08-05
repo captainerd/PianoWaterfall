@@ -1,6 +1,6 @@
 use std::time::{Duration, Instant};
 
-use crate::{NeothesiaEvent, context::Context, icons};
+use crate::{PianowaterfallEvent, context::Context, icons};
 
 use super::{
     PlayingScene,
@@ -118,7 +118,7 @@ impl TopBar {
     fn panel_left(this: &mut PlayingScene, ctx: &mut Context, ui: &mut nuon::Ui) {
         if Self::button().icon(icons::left_arrow_icon()).build(ui) {
             ctx.proxy
-                .send_event(NeothesiaEvent::MainMenu(Some(this.player.song().clone())))
+                .send_event(PianowaterfallEvent::MainMenu(Some(this.player.song().clone())))
                 .ok();
         }
     }

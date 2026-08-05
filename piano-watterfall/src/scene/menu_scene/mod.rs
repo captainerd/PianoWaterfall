@@ -24,7 +24,7 @@ use winit::{
     keyboard::{Key, NamedKey},
 };
 
-use crate::{NeothesiaEvent, context::Context, icons, scene::Scene, song::Song};
+use crate::{PianowaterfallEvent, context::Context, icons, scene::Scene, song::Song};
 use midi_file::midly::MidiMessage;
 
 use super::NuonRenderer;
@@ -220,7 +220,7 @@ impl MenuScene {
                 nuon::translate().x(btn_gap).add_to_current(ui);
 
                 if neo_btn().size(btn_w, btn_h).label("Yes").build(ui) {
-                    ctx.proxy.send_event(NeothesiaEvent::Exit).ok();
+                    ctx.proxy.send_event(PianowaterfallEvent::Exit).ok();
                 }
             });
     }
@@ -399,7 +399,7 @@ impl Scene for MenuScene {
         match self.state.current() {
             Page::Exit => {
                 if event.key_pressed(Key::Named(NamedKey::Enter)) {
-                    ctx.proxy.send_event(NeothesiaEvent::Exit).unwrap();
+                    ctx.proxy.send_event(PianowaterfallEvent::Exit).unwrap();
                 }
 
                 if event.key_pressed(Key::Named(NamedKey::Escape)) {

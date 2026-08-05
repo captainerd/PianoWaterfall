@@ -3,7 +3,7 @@ pub mod menu_scene;
 pub mod playing_scene;
 
 use crate::{
-    NeothesiaEvent, context::Context, scene::playing_scene::Keyboard, utils::window::WinitEvent,
+    PianowaterfallEvent, context::Context, scene::playing_scene::Keyboard, utils::window::WinitEvent,
 };
 use midi_file::midly::MidiMessage;
 use piano_watterfall_core::render::{Image, ImageIdentifier, ImageRenderer, QuadRenderer, TextRenderer};
@@ -73,7 +73,7 @@ pub fn handle_pc_keyboard_to_midi_event(ctx: &mut Context, event: &WindowEvent) 
         },
     };
     ctx.proxy
-        .send_event(NeothesiaEvent::MidiInput {
+        .send_event(PianowaterfallEvent::MidiInput {
             channel: 0,
             message,
         })
@@ -107,7 +107,7 @@ fn handle_mouse_to_midi_event(
             vel: 0.into(),
         };
         ctx.proxy
-            .send_event(NeothesiaEvent::MidiInput {
+            .send_event(PianowaterfallEvent::MidiInput {
                 channel: 0,
                 message,
             })
@@ -161,7 +161,7 @@ fn handle_mouse_to_midi_event(
             vel: 100.into(),
         };
         ctx.proxy
-            .send_event(NeothesiaEvent::MidiInput {
+            .send_event(PianowaterfallEvent::MidiInput {
                 channel: 0,
                 message,
             })

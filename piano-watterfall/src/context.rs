@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    NeothesiaEvent, TransformUniform, config::Config, input_manager::InputManager,
+    PianowaterfallEvent, TransformUniform, config::Config, input_manager::InputManager,
     output_manager::OutputManager, utils::window::WindowState,
 };
 use piano_watterfall_core::render::{QuadRendererFactory, TextRendererFactory};
@@ -24,7 +24,7 @@ pub struct Context {
     pub input_manager: InputManager,
     pub config: Config,
 
-    pub proxy: EventLoopProxy<NeothesiaEvent>,
+    pub proxy: EventLoopProxy<PianowaterfallEvent>,
 
     /// Last frame timestamp
     pub frame_timestamp: std::time::Instant,
@@ -43,7 +43,7 @@ impl Context {
     pub fn new(
         window: Arc<Window>,
         window_state: WindowState,
-        proxy: EventLoopProxy<NeothesiaEvent>,
+        proxy: EventLoopProxy<PianowaterfallEvent>,
         gpu: Gpu,
     ) -> Self {
         let transform_uniform = Uniform::new(

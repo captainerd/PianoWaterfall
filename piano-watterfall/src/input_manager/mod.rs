@@ -1,16 +1,16 @@
 use midi_file::midly::{self, MidiMessage, live::LiveEvent};
 use winit::event_loop::EventLoopProxy;
 
-use crate::NeothesiaEvent;
+use crate::PianowaterfallEvent;
 
 pub struct InputManager {
     input: midi_io::MidiInputManager,
-    tx: EventLoopProxy<NeothesiaEvent>,
+    tx: EventLoopProxy<PianowaterfallEvent>,
     current_connection: Option<(midi_io::MidiInputPort, midi_io::MidiInputConnection)>,
 }
 
 impl InputManager {
-    pub fn new(tx: EventLoopProxy<NeothesiaEvent>) -> Self {
+    pub fn new(tx: EventLoopProxy<PianowaterfallEvent>) -> Self {
         let input = midi_io::MidiInputManager::new().unwrap();
         Self {
             input,
@@ -42,14 +42,14 @@ impl InputManager {
                 match message {
                     // Some keyboards send NoteOn event with vel 0 instead of NoteOff
                     midly::MidiMessage::NoteOn { key, vel } if vel == 0 => {
-                        tx.send_event(NeothesiaEvent::MidiInput {
+                        tx.send_event(PianowaterfallEvent::MidiInput {
                             channel: channel.as_int(),
                             message: MidiMessage::NoteOff { key, vel },
                         })
                         .ok();
                     }
                     message => {
-                        tx.send_event(NeothesiaEvent::MidiInput {
+                        tx.send_event(PianowaterfallEvent::MidiInput {
                             channel: channel.as_int(),
                             message,
                         })

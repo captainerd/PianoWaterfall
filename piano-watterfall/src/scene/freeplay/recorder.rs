@@ -11,7 +11,7 @@ use midi_file::midly::{
 use piano_watterfall_core::render::{NoteLabels, WaterfallRenderer};
 
 use crate::{
-    NeothesiaEvent,
+    PianowaterfallEvent,
     context::Context,
     icons,
     scene::{
@@ -456,7 +456,7 @@ pub fn update_preview_ui(scene: &mut FreeplayScene, ctx: &mut Context) {
         }
         Msg::GoBack => {
             ctx.proxy
-                .send_event(NeothesiaEvent::MainMenu(scene.song.clone()))
+                .send_event(PianowaterfallEvent::MainMenu(scene.song.clone()))
                 .ok();
         }
         Msg::Record => {

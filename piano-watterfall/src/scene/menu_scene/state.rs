@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::{NeothesiaEvent, context::Context, output_manager::OutputDescriptor, song::Song};
+use crate::{PianowaterfallEvent, context::Context, output_manager::OutputDescriptor, song::Song};
 
 type InputDescriptor = midi_io::MidiInputPort;
 
@@ -136,7 +136,7 @@ pub fn play(data: &UiState, ctx: &mut Context) {
     connect_io(data, ctx);
 
     ctx.proxy
-        .send_event(NeothesiaEvent::Play(song.clone()))
+        .send_event(PianowaterfallEvent::Play(song.clone()))
         .ok();
 }
 
@@ -144,6 +144,6 @@ pub fn freeplay(data: &UiState, ctx: &mut Context) {
     connect_io(data, ctx);
 
     ctx.proxy
-        .send_event(NeothesiaEvent::FreePlay(data.song.clone()))
+        .send_event(PianowaterfallEvent::FreePlay(data.song.clone()))
         .ok();
 }

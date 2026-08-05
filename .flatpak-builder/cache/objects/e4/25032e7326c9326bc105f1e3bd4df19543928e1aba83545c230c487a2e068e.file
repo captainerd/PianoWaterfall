@@ -1,0 +1,18 @@
+[Application]
+name=com.github.captainerd.piano_watterfall
+runtime=org.freedesktop.Platform/x86_64/25.08
+sdk=org.freedesktop.Sdk/x86_64/25.08
+command=piano-watterfall
+
+[Context]
+shared=ipc;
+sockets=x11;wayland;pulseaudio;fallback-x11;
+devices=dri;
+
+[Extension com.github.captainerd.piano_watterfall.Debug]
+directory=lib/debug
+autodelete=true
+no-autodownload=true
+
+[Build]
+built-extensions=com.github.captainerd.piano_watterfall.Debug;
