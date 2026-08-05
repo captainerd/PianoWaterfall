@@ -1,7 +1,7 @@
 use crate::{
     context::Context,
-    scene::menu_scene::{icons, neo_btn_icon},
     scene::menu_scene::state::Page,
+    scene::menu_scene::{icons, neo_btn_icon},
 };
 
 impl super::MenuScene {
@@ -29,8 +29,7 @@ impl super::MenuScene {
         }
 
         // --- BOTTOM BAR ---
-   
-        
+
         nuon::translate().x(0.0).y(win_h).build(ui, |ui| {
             let padding = 10.0;
             let w = 80.0;
@@ -48,11 +47,14 @@ impl super::MenuScene {
 
             // Change Folder Button (Center) with Bootstrap folder icon
             let folder_btn_w = 80.0;
-            nuon::translate().x((win_w - folder_btn_w) / 2.0).build(ui, |ui| {
-                if neo_btn_icon(ui, folder_btn_w, h, icons::folder_icon()) {
-                    self.futures.push(super::midi_picker::open_midi_folder_picker(&mut self.state));
-                }
-            });
+            nuon::translate()
+                .x((win_w - folder_btn_w) / 2.0)
+                .build(ui, |ui| {
+                    if neo_btn_icon(ui, folder_btn_w, h, icons::folder_icon()) {
+                        self.futures
+                            .push(super::midi_picker::open_midi_folder_picker(&mut self.state));
+                    }
+                });
 
             // Play/Track Selection Button (Right - Only shown if a song is loaded)
             if self.state.song().is_some() {
@@ -78,7 +80,14 @@ impl super::MenuScene {
                 // Selected Song subtitle
                 nuon::translate().y(30.0).add_to_current(ui);
                 nuon::label()
-                    .text(format!("Selected song: {}", if song_file_name.is_empty() { "None" } else { &song_file_name }))
+                    .text(format!(
+                        "Selected song: {}",
+                        if song_file_name.is_empty() {
+                            "None"
+                        } else {
+                            &song_file_name
+                        }
+                    ))
                     .font_size(11.0)
                     .size(panel_w, 20.0)
                     .build(ui);
@@ -101,7 +110,8 @@ impl super::MenuScene {
                 } else {
                     nuon::scroll().build(ui, |ui| {
                         for song_info in songs {
-                            let clean_name = crate::song::Song::get_clean_songname(song_info.name.clone());
+                            let clean_name =
+                                crate::song::Song::get_clean_songname(song_info.name.clone());
                             let is_selected = song_file_name == clean_name;
 
                             let clicked = super::list_btn::list_btn()

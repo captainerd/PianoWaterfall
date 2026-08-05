@@ -1,11 +1,11 @@
 use midi_file::midly::MidiMessage;
+use piano_layout::KeyboardRange;
 use piano_waterfall_core::{
     config::ColorSchemaV1,
     piano_layout,
     render::{KeyboardKeyState, QuadRenderer, TextRenderer},
     utils::Point,
 };
-use piano_layout::KeyboardRange;
 
 use crate::{config::Config, context::Context, render::KeyboardRenderer, song::SongConfig};
 

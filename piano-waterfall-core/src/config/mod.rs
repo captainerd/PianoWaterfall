@@ -113,7 +113,7 @@ impl Config {
     pub fn set_piano_range_start(&mut self, start: u8) {
         self.keyboard_layout.range.0 = start;
     }
-pub fn song_directory(&self) -> Option<&PathBuf> {
+    pub fn song_directory(&self) -> Option<&PathBuf> {
         self.history.song_directory.as_ref()
     }
 

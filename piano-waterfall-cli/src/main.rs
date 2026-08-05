@@ -270,8 +270,10 @@ impl Recorder {
 }
 
 fn main() {
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("piano_waterfall=info"))
-        .init();
+    env_logger::Builder::from_env(
+        env_logger::Env::default().default_filter_or("piano_waterfall=info"),
+    )
+    .init();
 
     let args = cli::Args::get();
 

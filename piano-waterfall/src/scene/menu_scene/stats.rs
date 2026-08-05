@@ -41,7 +41,10 @@ impl SavedStats {
         let proj_dirs = directories::ProjectDirs::from("", "", "piano_waterfall")?;
         let data_dir = proj_dirs.data_dir();
         fs::create_dir_all(data_dir).ok()?;
-        let safe_name = song_name.chars().filter(|c| c.is_alphanumeric() || *c == ' ').collect::<String>();
+        let safe_name = song_name
+            .chars()
+            .filter(|c| c.is_alphanumeric() || *c == ' ')
+            .collect::<String>();
         Some(data_dir.join(format!("{}_stats.json", safe_name)))
     }
 
@@ -49,7 +52,7 @@ impl SavedStats {
         let Some(path) = Self::get_file_path(&song_name) else {
             return Vec::new();
         };
-        
+
         if let Ok(data) = fs::read_to_string(path) {
             if let Ok(mut stats) = serde_json::from_str::<Vec<SavedStats>>(&data) {
                 stats.sort_by(|a, b| b.score_cooking().cmp(&a.score_cooking()));
@@ -66,7 +69,7 @@ impl SavedStats {
 
         let mut stats = Self::load_for_song(song_name.to_string());
         stats.push(self.clone());
-        
+
         if let Ok(data) = serde_json::to_string(&stats) {
             let _ = fs::write(path, data);
         }
@@ -108,28 +111,31 @@ impl super::MenuScene {
 
         let start_x = nuon::center_x(win_w, TABLE_W);
 
-        nuon::translate().x(start_x).y(top_header_h).build(ui, |ui| {
-            nuon::quad()
-                .size(TABLE_W, ROW_H)
-                .color([45, 42, 55])
-                .border_radius([8.0; 4])
-                .build(ui);
+        nuon::translate()
+            .x(start_x)
+            .y(top_header_h)
+            .build(ui, |ui| {
+                nuon::quad()
+                    .size(TABLE_W, ROW_H)
+                    .color([45, 42, 55])
+                    .border_radius([8.0; 4])
+                    .build(ui);
 
-            let mut cur_x = 0.0;
-            for (header, width) in columns {
-                nuon::translate().x(cur_x).build(ui, |ui| {
-                    nuon::label()
-                        .text(header)
-                        .size(width, ROW_H)
-                        .font_size(14.0)
-                        .bold(true)
-                        .color([200, 200, 220])
-                        .text_justify(nuon::TextJustify::Center)
-                        .build(ui);
-                });
-                cur_x += width;
-            }
-        });
+                let mut cur_x = 0.0;
+                for (header, width) in columns {
+                    nuon::translate().x(cur_x).build(ui, |ui| {
+                        nuon::label()
+                            .text(header)
+                            .size(width, ROW_H)
+                            .font_size(14.0)
+                            .bold(true)
+                            .color([200, 200, 220])
+                            .text_justify(nuon::TextJustify::Center)
+                            .build(ui);
+                    });
+                    cur_x += width;
+                }
+            });
 
         let sorted_stats = SavedStats::load_for_song(song_name.clone());
 
@@ -169,37 +175,39 @@ impl super::MenuScene {
                                 [26, 24, 34]
                             };
 
-                            nuon::translate().y((ROW_H + row_gap) * index as f32).build(ui, |ui| {
-                                nuon::quad()
-                                    .size(TABLE_W, ROW_H)
-                                    .color(bg_color)
-                                    .border_radius([6.0; 4])
-                                    .build(ui);
+                            nuon::translate()
+                                .y((ROW_H + row_gap) * index as f32)
+                                .build(ui, |ui| {
+                                    nuon::quad()
+                                        .size(TABLE_W, ROW_H)
+                                        .color(bg_color)
+                                        .border_radius([6.0; 4])
+                                        .build(ui);
 
-                                let row_vals = [
-                                    (place_str, 80.0),
-                                    (date_str, 170.0),
-                                    (score.to_string(), 100.0),
-                                    (stats.notes_hit.to_string(), 100.0),
-                                    (stats.slow_hits.to_string(), 100.0),
-                                    (stats.wrong_notes.to_string(), 110.0),
-                                    (stats.correct_note_times.to_string(), 140.0),
-                                ];
+                                    let row_vals = [
+                                        (place_str, 80.0),
+                                        (date_str, 170.0),
+                                        (score.to_string(), 100.0),
+                                        (stats.notes_hit.to_string(), 100.0),
+                                        (stats.slow_hits.to_string(), 100.0),
+                                        (stats.wrong_notes.to_string(), 110.0),
+                                        (stats.correct_note_times.to_string(), 140.0),
+                                    ];
 
-                                let mut cur_x = 0.0;
-                                for (val, width) in row_vals {
-                                    nuon::translate().x(cur_x).build(ui, |ui| {
-                                        nuon::label()
-                                            .text(&val)
-                                            .size(width, ROW_H)
-                                            .font_size(14.0)
-                                            .color([230, 230, 245])
-                                            .text_justify(nuon::TextJustify::Center)
-                                            .build(ui);
-                                    });
-                                    cur_x += width;
-                                }
-                            });
+                                    let mut cur_x = 0.0;
+                                    for (val, width) in row_vals {
+                                        nuon::translate().x(cur_x).build(ui, |ui| {
+                                            nuon::label()
+                                                .text(&val)
+                                                .size(width, ROW_H)
+                                                .font_size(14.0)
+                                                .color([230, 230, 245])
+                                                .text_justify(nuon::TextJustify::Center)
+                                                .build(ui);
+                                        });
+                                        cur_x += width;
+                                    }
+                                });
                         }
                     }
                 });

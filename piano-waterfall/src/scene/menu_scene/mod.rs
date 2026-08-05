@@ -5,14 +5,14 @@ use std::collections::HashMap;
 mod list_btn;
 mod midi_picker;
 use midi_picker::open_midi_file_picker;
-mod select_song;
 mod neo_btn;
- 
+mod select_song;
+
 use neo_btn::{neo_btn, neo_btn_icon};
 
 mod settings;
-mod tracks;
 pub mod stats;
+mod tracks;
 
 use std::{collections::HashSet, future::Future, time::Duration};
 
@@ -82,14 +82,14 @@ impl MidiInputState {
 }
 
 pub struct MenuScene {
-     pub state: UiState,
+    pub state: UiState,
     bg_pipeline: BgPipeline,
     pub icon_cache: HashMap<*const u8, ImageIdentifier>,
     text_renderer: TextRenderer,
     nuon_renderer: NuonRenderer,
- 
+
     logo: ImageIdentifier,
- 
+
     context: std::task::Context<'static>,
     futures: Vec<BoxFuture<MsgFn>>,
 
@@ -147,17 +147,12 @@ impl MenuScene {
         }
 
         let image_bytes = bytes::Bytes::from_static(bytes);
-        let image = piano_waterfall_core::render::Image::new(
-            &ctx.gpu.device,
-            &ctx.gpu.queue,
-            image_bytes,
-        );
+        let image =
+            piano_waterfall_core::render::Image::new(&ctx.gpu.device, &ctx.gpu.queue, image_bytes);
         let id = self.nuon_renderer.add_image(image);
         self.icon_cache.insert(ptr, id);
         id
     }
-
-  
 
     fn main_ui(&mut self, ctx: &mut Context) {
         if self.state.is_loading() {

@@ -28,7 +28,8 @@ use winit::{
 use crate::utils::window::WinitEvent;
 
 #[derive(Debug)]
-pub enum PianowaterfallEvent {    /// Go to playing scene
+pub enum PianowaterfallEvent {
+    /// Go to playing scene
     Play(song::Song),
     Stats(Option<song::Song>),
     FreePlay(Option<song::Song>),
@@ -74,7 +75,6 @@ impl Pianowaterfall {
         self.context.window_state.window_event(event);
 
         match event {
-            
             // Windows sets size to 0 on minimise
             WindowEvent::Resized(ps) if ps.width > 0 && ps.height > 0 => {
                 self.surface.resize_swap_chain(
@@ -88,7 +88,7 @@ impl Pianowaterfall {
             WindowEvent::ScaleFactorChanged { .. } => {
                 self.context.resize();
             }
-    
+
             WindowEvent::KeyboardInput { .. } => {
                 use winit::keyboard::Key;
 
@@ -396,9 +396,9 @@ fn main() {
 fn set_window_icon(window: &winit::window::Window) -> Result<(), Box<dyn std::error::Error>> {
     use std::io::Cursor;
 
-  let (icon, w, h) = piano_waterfall_image::load_png(Cursor::new(include_bytes!(
-  "../../flatpak/com.github.captainerd.piano_waterfall.png"
-)))?;
+    let (icon, w, h) = piano_waterfall_image::load_png(Cursor::new(include_bytes!(
+        "../../flatpak/com.github.captainerd.piano_waterfall.png"
+    )))?;
 
     window.set_window_icon(Some(winit::window::Icon::from_rgba(icon, w, h)?));
 

@@ -2,7 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::{
-    scene::menu_scene::{on_async, MsgFn},
+    scene::menu_scene::{MsgFn, on_async},
     song::Song,
     utils::BoxFuture,
 };
@@ -25,7 +25,9 @@ pub fn scan_directory_for_midis(dir_path: &Path) -> Vec<ScannedSong> {
             let path = entry.path();
             if path.is_file() {
                 if let Some(extension) = path.extension().and_then(|ext| ext.to_str()) {
-                    if extension.eq_ignore_ascii_case("mid") || extension.eq_ignore_ascii_case("midi") {
+                    if extension.eq_ignore_ascii_case("mid")
+                        || extension.eq_ignore_ascii_case("midi")
+                    {
                         if let Some(file_name) = path.file_name().and_then(|f| f.to_str()) {
                             let clean_name = Song::get_clean_songname(file_name.to_string());
                             songs.push(ScannedSong {
@@ -57,7 +59,7 @@ pub fn open_midi_folder_picker(_state: &mut UiState) -> BoxFuture<MsgFn> {
         |folder, _state, ctx| {
             if let Some(folder) = folder {
                 let path = folder.path().to_path_buf();
-                
+
                 // Save to config and persist to disk
                 ctx.config.set_song_directory(Some(path));
                 ctx.config.save(); // <--- Make sure save() is called!
@@ -96,9 +98,6 @@ async fn open_midi_file_picker_fut() -> Option<(midi_file::MidiFile, PathBuf)> {
 
     thread.join().await.ok().flatten()
 }
-
-
- 
 
 /// 2. Load a specific MIDI file chosen from the folder list
 pub fn load_midi_from_path(data: &mut UiState, song_path: PathBuf) -> BoxFuture<MsgFn> {

@@ -134,7 +134,6 @@ impl FreeplayScene {
                 self.keyboard.pos().y,
                 key.width(),
                 delta,
-
                 false,
             );
         }

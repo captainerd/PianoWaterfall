@@ -3,10 +3,13 @@ pub mod menu_scene;
 pub mod playing_scene;
 
 use crate::{
-    PianowaterfallEvent, context::Context, scene::playing_scene::Keyboard, utils::window::WinitEvent,
+    PianowaterfallEvent, context::Context, scene::playing_scene::Keyboard,
+    utils::window::WinitEvent,
 };
 use midi_file::midly::MidiMessage;
-use piano_waterfall_core::render::{Image, ImageIdentifier, ImageRenderer, QuadRenderer, TextRenderer};
+use piano_waterfall_core::render::{
+    Image, ImageIdentifier, ImageRenderer, QuadRenderer, TextRenderer,
+};
 use std::{collections::HashMap, time::Duration};
 use winit::{
     dpi::{LogicalPosition, LogicalSize},
@@ -245,8 +248,10 @@ fn render_nuon(ui: &mut nuon::Ui, nuon_renderer: &mut NuonRenderer, ctx: &mut Co
             .to_physical::<u32>(ctx.window_state.scale_factor);
         let size = LogicalSize::new(scissor_rect.width(), scissor_rect.height())
             .to_physical::<u32>(ctx.window_state.scale_factor);
-        let scissor_rect =
-            piano_waterfall_core::Rect::new((pos.x, pos.y).into(), (size.width, size.height).into());
+        let scissor_rect = piano_waterfall_core::Rect::new(
+            (pos.x, pos.y).into(),
+            (size.width, size.height).into(),
+        );
 
         out.quad_renderer.set_scissor_rect(scissor_rect);
         out.text_renderer.set_scissor_rect(scissor_rect);

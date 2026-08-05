@@ -1,10 +1,7 @@
 use nuon::TextJustify;
 use std::hash::Hash;
 
-use crate::{
-    context::Context,
-    song::{PlayerConfig},
-};
+use crate::{context::Context, song::PlayerConfig};
 
 use super::{neo_btn_icon, state};
 use crate::icons;
@@ -104,9 +101,10 @@ impl super::MenuScene {
         });
 
         // --- TRACK CARDS GRID ---
- // --- TRACK CARDS GRID ---
+        // --- TRACK CARDS GRID ---
         let track_items: Vec<TrackCardData> = if let Some(song) = self.state.song.as_ref() {
-            let mut items: Vec<TrackCardData> = song.file
+            let mut items: Vec<TrackCardData> = song
+                .file
                 .tracks
                 .iter()
                 .filter(|t| !t.notes.is_empty())
@@ -166,7 +164,6 @@ impl super::MenuScene {
         } else {
             Vec::new()
         };
-        
 
         if !track_items.is_empty() {
             let mut events = Vec::new();
@@ -285,9 +282,7 @@ impl super::MenuScene {
             let icon_id = self.get_or_load_icon(ctx, icon_bytes);
 
             nuon::translate().pos(0.0, 0.0).build(ui, |ui| {
-                nuon::image(icon_id)
-                    .size(icon_size, icon_size)
-                    .build(ui);
+                nuon::image(icon_id).size(icon_size, icon_size).build(ui);
             });
 
             // 3. EYE VISIBILITY TOGGLE BUTTON

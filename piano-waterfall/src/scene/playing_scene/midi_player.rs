@@ -1,4 +1,4 @@
-use midi_file::midly::{num::u4, MidiMessage};
+use midi_file::midly::{MidiMessage, num::u4};
 
 use crate::{
     output_manager::OutputConnection,
@@ -313,15 +313,13 @@ impl PlayAlong {
         self.stats.wrong_notes
     }
 
-   pub fn slow_hits(&self) -> usize {
+    pub fn slow_hits(&self) -> usize {
         self.stats.count_too_late()
     }
 
     pub fn late_notes(&self) -> usize {
         self.stats.played_late.len()
     }
-
-  
 
     fn update(&mut self) {
         // Instead of calling .elapsed() per item let's fetch `now` once, and subtract it ourselves

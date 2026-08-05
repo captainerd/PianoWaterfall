@@ -28,7 +28,12 @@ pub fn default_sf2() -> Option<PathBuf> {
             exe_path
                 .parent()
                 .and_then(|path| path.parent())
-                .map(|pfx_path| pfx_path.join("share").join("piano_waterfall").join("default.sf2"))
+                .map(|pfx_path| {
+                    pfx_path
+                        .join("share")
+                        .join("piano_waterfall")
+                        .join("default.sf2")
+                })
         }) && path.exists()
         {
             return Some(path);

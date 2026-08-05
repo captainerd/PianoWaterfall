@@ -100,7 +100,10 @@ impl PlayingScene {
             keyboard_layout.range.clone(),
             ctx.config.separate_channels(),
         );
-       waterfall.update(player.time_without_lead_in() + ctx.config.animation_offset(), 0.0);
+        waterfall.update(
+            player.time_without_lead_in() + ctx.config.animation_offset(),
+            0.0,
+        );
 
         let quad_renderer_bg = ctx.quad_renderer_factory.new_renderer();
         let quad_renderer_fg = ctx.quad_renderer_factory.new_renderer();
@@ -134,60 +137,58 @@ impl PlayingScene {
             is_song_finished: false,
         }
     }
-    
- fn update_glow(&mut self, delta: Duration, retriggered_notes: &std::collections::HashSet<u8>) {
-    let Some(glow) = &mut self.glow else {
-        return;
-    };
 
-    glow.clear();
-
-    let keys = &self.keyboard.layout().keys;
-    let states = self.keyboard.key_states();
-    let range_start = self.keyboard.range().start() as usize;
-    let play_along = self.player.play_along();
-
-    for (idx, key) in keys.iter().enumerate() {
-        let note_id = (key.id() + range_start) as u8;
-
-        let Some(state) = states.get(idx) else {
-            continue;
+    fn update_glow(&mut self, delta: Duration, retriggered_notes: &std::collections::HashSet<u8>) {
+        let Some(glow) = &mut self.glow else {
+            return;
         };
 
-        let file_color = state.pressed_by_file();
-        let user_press = state.pressed_by_user();
-        let is_user_pressed = user_press.is_some();
-        let is_file_active = file_color.is_some();
-        let is_human_waiting = play_along.is_note_required(note_id);
+        glow.clear();
 
-       let color = if is_user_pressed {
-            file_color.copied()
-        } else if is_file_active && !is_human_waiting {
-            file_color.copied()
-        } else {
-            None
-        };
+        let keys = &self.keyboard.layout().keys;
+        let states = self.keyboard.key_states();
+        let range_start = self.keyboard.range().start() as usize;
+        let play_along = self.player.play_along();
 
-        let Some(color) = color else {
-            continue;
-        };
+        for (idx, key) in keys.iter().enumerate() {
+            let note_id = (key.id() + range_start) as u8;
 
-     
+            let Some(state) = states.get(idx) else {
+                continue;
+            };
 
-        // Check if this specific MIDI note had a NoteOn event this frame
-        let retrigger = retriggered_notes.contains(&note_id);
-   
-        glow.push(
-            idx,
-            color,
-            key.x(),
-            self.keyboard.pos().y,
-            key.width(),
-            delta,
-            retrigger,
-        );
+            let file_color = state.pressed_by_file();
+            let user_press = state.pressed_by_user();
+            let is_user_pressed = user_press.is_some();
+            let is_file_active = file_color.is_some();
+            let is_human_waiting = play_along.is_note_required(note_id);
+
+            let color = if is_user_pressed {
+                file_color.copied()
+            } else if is_file_active && !is_human_waiting {
+                file_color.copied()
+            } else {
+                None
+            };
+
+            let Some(color) = color else {
+                continue;
+            };
+
+            // Check if this specific MIDI note had a NoteOn event this frame
+            let retrigger = retriggered_notes.contains(&note_id);
+
+            glow.push(
+                idx,
+                color,
+                key.x(),
+                self.keyboard.pos().y,
+                key.width(),
+                delta,
+                retrigger,
+            );
+        }
     }
-}
     fn update_chord_identifier(&mut self, enabled: bool) {
         if !enabled {
             return;
@@ -206,36 +207,36 @@ impl PlayingScene {
         self.deduced_chord_name = super::freeplay::chords::deduce_name(&notes).unwrap_or_default();
     }
 
-#[profiling::function]
-fn update_midi_player(&mut self, ctx: &Context, delta: Duration) -> f32 {
-    if self.top_bar.is_looper_active() && self.player.time() > self.top_bar.loop_end_timestamp()
-    {
-        self.player.set_time(self.top_bar.loop_start_timestamp());
-        self.keyboard.reset_notes();
-    }
-
-    let mut retriggered_notes = std::collections::HashSet::new();
-
-    if self.player.play_along().are_required_keys_pressed() {
-        let delta = (delta / 10) * (ctx.config.speed_multiplier() * 10.0) as u32;
-        let midi_events = self.player.update(delta);
-
-        // Collect all note IDs that received a new NoteOn strike in this frame
-        for event in &midi_events {
-            if let MidiMessage::NoteOn { key, vel } = &event.message {
-                if u8::from(*vel) > 0 {
-                    retriggered_notes.insert(u8::from(*key));
-                }
-            }
+    #[profiling::function]
+    fn update_midi_player(&mut self, ctx: &Context, delta: Duration) -> f32 {
+        if self.top_bar.is_looper_active() && self.player.time() > self.top_bar.loop_end_timestamp()
+        {
+            self.player.set_time(self.top_bar.loop_start_timestamp());
+            self.keyboard.reset_notes();
         }
 
-        self.keyboard.file_midi_events(&ctx.config, &midi_events);
+        let mut retriggered_notes = std::collections::HashSet::new();
+
+        if self.player.play_along().are_required_keys_pressed() {
+            let delta = (delta / 10) * (ctx.config.speed_multiplier() * 10.0) as u32;
+            let midi_events = self.player.update(delta);
+
+            // Collect all note IDs that received a new NoteOn strike in this frame
+            for event in &midi_events {
+                if let MidiMessage::NoteOn { key, vel } = &event.message {
+                    if u8::from(*vel) > 0 {
+                        retriggered_notes.insert(u8::from(*key));
+                    }
+                }
+            }
+
+            self.keyboard.file_midi_events(&ctx.config, &midi_events);
+        }
+
+        self.update_glow(delta, &retriggered_notes);
+
+        self.player.time_without_lead_in() + ctx.config.animation_offset()
     }
-
-    self.update_glow(delta, &retriggered_notes);
-
-    self.player.time_without_lead_in() + ctx.config.animation_offset()
-}
 
     #[profiling::function]
     fn resize(&mut self, ctx: &mut Context) {
@@ -251,31 +252,25 @@ fn update_midi_player(&mut self, ctx: &Context, delta: Duration) -> f32 {
             .resize(&ctx.config, self.keyboard.layout().clone());
     }
 
- fn finish_and_exit(&mut self, ctx: &mut Context) {
+    fn finish_and_exit(&mut self, ctx: &mut Context) {
         let play_along = self.player.play_along();
-        
+
         let stats = crate::scene::menu_scene::stats::SavedStats {
-    date: chrono::Utc::now(),
-    notes_hit: play_along.notes_hit() - play_along.slow_hits(),
-    slow_hits: play_along.late_notes(), // Use actual late/slow hits here
-    wrong_notes: play_along.wrong_notes(),
-    correct_note_times: play_along.notes_hit(), // Or your duration metric
-};
-     
+            date: chrono::Utc::now(),
+            notes_hit: play_along.notes_hit() - play_along.slow_hits(),
+            slow_hits: play_along.late_notes(), // Use actual late/slow hits here
+            wrong_notes: play_along.wrong_notes(),
+            correct_note_times: play_along.notes_hit(), // Or your duration metric
+        };
 
         let current_song = self.player.song().clone();
         let song_name = crate::song::Song::get_clean_songname(current_song.file.name.clone());
         stats.save_for_song(&song_name);
 
-        
-
         ctx.proxy
             .send_event(PianowaterfallEvent::Stats(Some(current_song)))
             .ok();
     }
-
-
-
 }
 
 impl Scene for PlayingScene {
@@ -288,7 +283,7 @@ impl Scene for PlayingScene {
         self.toast_manager.update(&mut self.text_renderer);
 
         let time = self.update_midi_player(ctx, delta);
-     self.waterfall.update(time, delta.as_secs_f32());
+        self.waterfall.update(time, delta.as_secs_f32());
 
         self.guidelines.update(
             &mut self.quad_renderer_bg,
@@ -309,9 +304,7 @@ impl Scene for PlayingScene {
                 time,
             );
         }
-    
 
-      
         TopBar::update(self, ctx);
 
         if ctx.config.chord_identifier() {

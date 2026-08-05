@@ -64,14 +64,14 @@ impl NeoBtn {
 
         let event = nuon::click_area(id).size(w, h).build(ui);
 
-      let (bg, accent) = if event.is_hovered() || event.is_pressed() {
+        let (bg, accent) = if event.is_hovered() || event.is_pressed() {
             (
                 nuon::Color::new_u8(20, 10, 12, 0.7), // Warm dark ruby tint on hover
                 nuon::Color::new_u8(255, 60, 90, 1.0), // Bright neon crimson accent
             )
         } else {
             (
-                nuon::Color::new_u8(12, 12, 12, 0.6), // Dark charcoal base
+                nuon::Color::new_u8(12, 12, 12, 0.6),  // Dark charcoal base
                 nuon::Color::new_u8(180, 20, 50, 1.0), // Rich crimson bottom border
             )
         };
