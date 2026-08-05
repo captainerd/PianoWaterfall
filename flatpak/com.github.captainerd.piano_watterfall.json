@@ -1,0 +1,39 @@
+{
+  "app-id": "com.github.captainerd.piano_watterfall",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "25.08",
+  "sdk": "org.freedesktop.Sdk",
+  "sdk-extensions": ["org.freedesktop.Sdk.Extension.rust-stable"],
+  "command": "piano-watterfall",
+  "no-appstream-compose": true,
+  "finish-args": [
+    "--share=ipc",
+    "--socket=fallback-x11",
+    "--socket=wayland",
+    "--socket=pulseaudio",
+    "--device=dri"
+  ],
+  "build-options": {
+    "append-path": "/usr/lib/sdk/rust-stable/bin"
+  },
+  "modules": [
+    {
+      "name": "piano_watterfall",
+      "buildsystem": "simple",
+      "build-commands": [
+        "cargo --offline build --release",
+        "mkdir -p /app/share/piano_watterfall/",
+        "cp -ap ./default.sf2 /app/share/piano_watterfall/default.sf2",
+        "find target/release -maxdepth 1 -type f -executable -exec install -Dm755 {} -t /app/bin/ \\;",
+        "install -Dm644 ./flatpak/com.github.captainerd.piano_watterfall.desktop -t /app/share/applications/",
+        "install -Dm644 ./flatpak/com.github.captainerd.piano_watterfall.png -t /app/share/icons/hicolor/256x256/apps/"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "../"
+        }
+      ]
+    }
+  ]
+}

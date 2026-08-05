@@ -398,7 +398,7 @@ fn set_window_icon(window: &winit::window::Window) -> Result<(), Box<dyn std::er
     use std::io::Cursor;
 
   let (icon, w, h) = piano_watterfall_image::load_png(Cursor::new(include_bytes!(
-    "../../flatpak/com.github.polymeilex.piano_watterfall.png"
+  "../../flatpak/com.github.captainerd.piano_watterfall.png"
 )))?;
 
     window.set_window_icon(Some(winit::window::Icon::from_rgba(icon, w, h)?));
