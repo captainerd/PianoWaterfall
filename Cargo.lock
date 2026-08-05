@@ -1796,7 +1796,7 @@ name = "nuon"
 version = "0.1.0"
 dependencies = [
  "euclid",
- "piano-watterfall-image",
+ "piano-waterfall-image",
 ]
 
 [[package]]
@@ -2255,7 +2255,7 @@ name = "piano-layout"
 version = "0.1.0"
 
 [[package]]
-name = "piano-watterfall"
+name = "piano-waterfall"
 version = "0.4.0"
 dependencies = [
  "bytes",
@@ -2274,8 +2274,8 @@ dependencies = [
  "nuon",
  "oxisynth",
  "piano-layout",
- "piano-watterfall-core",
- "piano-watterfall-image",
+ "piano-waterfall-core",
+ "piano-waterfall-image",
  "pollster 1.0.1",
  "profiling",
  "puffin",
@@ -2290,7 +2290,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "piano-watterfall-ai"
+name = "piano-waterfall-ai"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -2305,7 +2305,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "piano-watterfall-cli"
+name = "piano-waterfall-cli"
 version = "0.1.0"
 dependencies = [
  "clap",
@@ -2313,13 +2313,13 @@ dependencies = [
  "ffmpeg-encoder",
  "midi-file",
  "oxisynth",
- "piano-watterfall-core",
+ "piano-waterfall-core",
  "pollster 1.0.1",
  "wgpu-jumpstart",
 ]
 
 [[package]]
-name = "piano-watterfall-core"
+name = "piano-waterfall-core"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
@@ -2331,7 +2331,7 @@ dependencies = [
  "midi-file",
  "objc2-foundation 0.3.2",
  "piano-layout",
- "piano-watterfall-image",
+ "piano-waterfall-image",
  "profiling",
  "ron",
  "serde",
@@ -2340,7 +2340,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "piano-watterfall-image"
+name = "piano-waterfall-image"
 version = "0.1.0"
 dependencies = [
  "bytes",

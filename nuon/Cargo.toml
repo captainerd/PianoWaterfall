@@ -5,4 +5,4 @@ edition.workspace = true
 
 [dependencies]
 euclid.workspace = true
-piano-watterfall-image.workspace = true
+piano-waterfall-image.workspace = true

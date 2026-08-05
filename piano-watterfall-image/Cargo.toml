@@ -1,8 +1,0 @@
-[package]
-name = "piano-watterfall-image"
-version = "0.1.0"
-edition.workspace = true
-
-[dependencies]
-png.workspace = true
-bytes.workspace = true

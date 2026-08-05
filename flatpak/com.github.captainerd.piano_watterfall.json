@@ -1,10 +1,10 @@
 {
-  "app-id": "com.github.captainerd.piano_watterfall",
+  "app-id": "com.github.captainerd.piano_waterfall",
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "25.08",
   "sdk": "org.freedesktop.Sdk",
   "sdk-extensions": ["org.freedesktop.Sdk.Extension.rust-stable"],
-  "command": "piano-watterfall",
+  "command": "piano-waterfall",
   "no-appstream-compose": true,
   "finish-args": [
     "--share=ipc",
@@ -18,15 +18,15 @@
   },
   "modules": [
     {
-      "name": "piano_watterfall",
+      "name": "piano_waterfall",
       "buildsystem": "simple",
       "build-commands": [
         "cargo --offline build --release",
-        "mkdir -p /app/share/piano_watterfall/",
-        "cp -ap ./default.sf2 /app/share/piano_watterfall/default.sf2",
+        "mkdir -p /app/share/piano_waterfall/",
+        "cp -ap ./default.sf2 /app/share/piano_waterfall/default.sf2",
         "find target/release -maxdepth 1 -type f -executable -exec install -Dm755 {} -t /app/bin/ \\;",
-        "install -Dm644 ./flatpak/com.github.captainerd.piano_watterfall.desktop -t /app/share/applications/",
-        "install -Dm644 ./flatpak/com.github.captainerd.piano_watterfall.png -t /app/share/icons/hicolor/256x256/apps/"
+        "install -Dm644 ./flatpak/com.github.captainerd.piano_waterfall.desktop -t /app/share/applications/",
+        "install -Dm644 ./flatpak/com.github.captainerd.piano_waterfall.png -t /app/share/icons/hicolor/256x256/apps/"
       ],
       "sources": [
         {

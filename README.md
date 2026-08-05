@@ -46,7 +46,7 @@ cd piano-waterfall
 
 # Build and run in release mode
 cargo build --release
-./target/release/piano-watterfall
+./target/release/piano-waterfall
 ```
 ## Thanks to
 

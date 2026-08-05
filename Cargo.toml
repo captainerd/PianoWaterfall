@@ -3,17 +3,17 @@ members = [
   "piano-layout",
   "wgpu-jumpstart",
   "ffmpeg-encoder",
-  "piano-watterfall",
-  "piano-watterfall-ai",
-  "piano-watterfall-cli",
-  "piano-watterfall-core",
-  "piano-watterfall-image",
+  "piano-waterfall",
+  "piano-waterfall-ai",
+  "piano-waterfall-cli",
+  "piano-waterfall-core",
+  "piano-waterfall-image",
   "midi-file",
   "midi-io",
   "nuon",
 ]
 
-default-members = ["piano-watterfall"]
+default-members = ["piano-waterfall"]
 resolver = "2"
 
 [workspace.package]
@@ -21,8 +21,8 @@ edition = "2024"
 
 [workspace.dependencies]
 wgpu-jumpstart = { path = "./wgpu-jumpstart" }
-piano-watterfall-core = { path = "./piano-watterfall-core" }
-piano-watterfall-image = { path = "./piano-watterfall-image" }
+piano-waterfall-core = { path = "./piano-waterfall-core" }
+piano-waterfall-image = { path = "./piano-waterfall-image" }
 midi-file = { path = "./midi-file" }
 midi-io = { path = "./midi-io" }
 piano-layout = { path = "./piano-layout" }
@@ -66,7 +66,7 @@ cosmic-text = "0.19"
 png = "0.18"
 midly = "0.5"
 
-# piano-watterfall-cli deps
+# piano-waterfall-cli deps
 ffmpeg = { package = "ffmpeg-sys-next", version = "8", default-features = false }
 clap = { version = "4.5.41", default-features = false, features = [
   "color",
@@ -76,7 +76,7 @@ clap = { version = "4.5.41", default-features = false, features = [
   "usage",
 ] }
 
-# piano-watterfall-ai deps
+# piano-waterfall-ai deps
 ndarray = "0.17"
 rten = "0.24"
 rten-tensor = "0.24"

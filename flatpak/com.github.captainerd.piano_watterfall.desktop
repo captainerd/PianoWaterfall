@@ -5,8 +5,8 @@ Type=Application
 Name=Neothesia
 Comment=Midi visualizer
 Categories=Game;Music;
-Icon=com.github.polymeilex.piano_watterfall
+Icon=com.github.polymeilex.piano_waterfall
 
-Exec=piano_watterfall
+Exec=piano_waterfall
 Terminal=false
 StartupNotify=false
