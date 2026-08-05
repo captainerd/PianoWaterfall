@@ -47,7 +47,7 @@ cd piano-waterfall
 # Build and run in release mode
 cargo build --release
 ./target/release/piano-watterfall
-
+```
 ## Thanks to
 
 - Original Project: [Neothesia](https://github.com/PolyMeilex/Neothesia) by **polymeilex**
