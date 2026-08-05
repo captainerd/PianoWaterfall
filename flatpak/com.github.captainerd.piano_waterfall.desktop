@@ -2,11 +2,11 @@
 Version=1.0
 Type=Application
 
-Name=Neothesia
+Name=Piano Waterfall
 Comment=Midi visualizer
 Categories=Game;Music;
-Icon=com.github.polymeilex.piano_waterfall
+Icon=com.github.captainerd.piano_waterfall
 
-Exec=piano_waterfall
+Exec=piano-waterfall
 Terminal=false
 StartupNotify=false
