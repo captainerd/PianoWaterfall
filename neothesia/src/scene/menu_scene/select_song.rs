@@ -1,6 +1,6 @@
 use crate::{
     context::Context,
-    scene::menu_scene::{icons, neo_btn_icon, state},
+    scene::menu_scene::{icons, neo_btn_icon},
     scene::menu_scene::state::Page,
 };
 
