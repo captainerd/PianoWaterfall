@@ -113,7 +113,7 @@ impl Recorder {
 
         let playback = midi_file::PlaybackState::new(Duration::from_secs(3), midi.tracks.clone());
 
-        waterfall.update(time_without_lead_in(&playback));
+        waterfall.update(time_without_lead_in(&playback), 0.0);
 
         let text_renderer_factory = TextRendererFactory::new(&gpu);
         let text = text_renderer_factory.new_renderer();
@@ -175,7 +175,7 @@ impl Recorder {
             piano_waterfall_core::dpi::LogicalSize::new(self.width as f32, self.height as f32),
         );
 
-        self.waterfall.update(time);
+        self.waterfall.update(time, delta.as_secs_f32());
 
         self.keyboard
             .update(&mut self.quad_renderer_fg, &mut self.text);
